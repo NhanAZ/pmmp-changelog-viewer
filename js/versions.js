@@ -109,8 +109,12 @@ const Versions = {
         });
         
         // Expand/collapse buttons
-        document.getElementById('expand-all')?.addEventListener('click', this.expandAllGroups);
-        document.getElementById('collapse-all')?.addEventListener('click', this.collapseAllGroups);
+        document.getElementById('expand-all')?.addEventListener('click', () => {
+            this.expandAllGroups();
+        });
+        document.getElementById('collapse-all')?.addEventListener('click', () => {
+            this.collapseAllGroups();
+        });
         
         // Version filter
         document.getElementById('version-filter')?.addEventListener('change', event => {
@@ -126,15 +130,16 @@ const Versions = {
     /**
      * Load and display a specific version
      * @param {string} version - Version file name
+     * @param {boolean} updateHistory - Whether to update browser history (default: true)
      * @returns {Promise} Promise that resolves when version is loaded
      */
-    loadVersion: async function(version) {
+    loadVersion: async function(version, updateHistory = true) {
         try {
             UI.showLoading();
             
             // Check cache first
             if (this.cache[version]) {
-                this.displayVersion(version, this.cache[version]);
+                this.displayVersion(version, this.cache[version], updateHistory);
                 return;
             }
             
@@ -149,7 +154,7 @@ const Versions = {
             this.cache[version] = content;
             
             // Display the version
-            this.displayVersion(version, content);
+            this.displayVersion(version, content, updateHistory);
             
             // Save as last viewed version
             Storage.saveLastVersion(version);
@@ -167,10 +172,17 @@ const Versions = {
      * Display a loaded version
      * @param {string} version - Version file name
      * @param {string} content - Markdown content
+     * @param {boolean} updateHistory - Whether to update browser history (default: true)
      */
-    displayVersion: function(version, content) {
+    displayVersion: function(version, content, updateHistory = true) {
         // Update current version
         this.current = version;
+        
+        // Hide search results if visible
+        const searchResults = document.getElementById('search-results');
+        if (searchResults) {
+            searchResults.style.display = 'none';
+        }
         
         // Render content
         UI.renderContent(content);
@@ -183,12 +195,11 @@ const Versions = {
         const parsedVersion = Utils.parseVersion(version);
         document.getElementById('current-file').textContent = `Version ${parsedVersion.displayName}`;
         
-        // Update bookmark button state
-        UI.updateBookmarkButton(Storage.isBookmarked(version));
-        
-        // Update URL for sharing
-        const newUrl = Utils.createUrlWithParams({ version });
-        window.history.replaceState({}, '', newUrl);
+        // Update URL for sharing and add to browser history if needed
+        if (updateHistory) {
+            const newUrl = Utils.createUrlWithParams({ version });
+            window.history.pushState({ version }, '', newUrl);
+        }
     },
     
     /**

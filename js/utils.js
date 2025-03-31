@@ -159,7 +159,10 @@ const Utils = {
             const pairs = queryString.split('&');
             pairs.forEach(pair => {
                 const [key, value] = pair.split('=');
-                params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+                // Replace '+' with space before decoding to ensure proper handling of spaces
+                const decodedKey = decodeURIComponent(key);
+                const decodedValue = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+                params[decodedKey] = decodedValue;
             });
         }
         

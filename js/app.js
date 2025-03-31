@@ -14,16 +14,23 @@ const App = {
             
             // Initialize modules in order
             Render.init();
-            Storage.init();
             
-            // Initialize UI
-            UI.init();
+            try {
+                Storage.init();
+                console.log('Storage initialized successfully');
+            } catch (storageError) {
+                console.error('Error initializing Storage module:', storageError);
+            }
+            
+            try {
+                UI.init();
+                console.log('UI initialized successfully');
+            } catch (uiError) {
+                console.error('Error initializing UI module:', uiError);
+            }
             
             // Initialize Search
             Search.init();
-            
-            // Initialize Compare
-            Compare.init();
             
             // Initialize Versions (loads data)
             await Versions.init();
@@ -34,10 +41,35 @@ const App = {
             // Check URL parameters for direct loading
             this.processUrlParameters();
             
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (event) => {
+                // Get current URL parameters when back/forward is pressed
+                const currentParams = Utils.getUrlParams();
+                
+                if (currentParams.search) {
+                    // If URL has search parameter, prioritize displaying search results
+                    document.getElementById('search-input').value = currentParams.search;
+                    Search.performSearch(currentParams.search, false);
+                } else if (currentParams.version) {
+                    // If URL has version parameter, display that version
+                    Versions.loadVersion(currentParams.version, false);
+                } else if (event.state && event.state.search) {
+                    // Fallback to state if URL parameters are missing
+                    document.getElementById('search-input').value = event.state.search;
+                    Search.performSearch(event.state.search, false);
+                } else if (event.state && event.state.version) {
+                    // Fallback to state if URL parameters are missing
+                    Versions.loadVersion(event.state.version, false);
+                } else {
+                    // Default to welcome page
+                    this.renderWelcomePage();
+                }
+            });
+            
             console.log('Initialization complete');
         } catch (error) {
             console.error('Error initializing application:', error);
-            UI.showError('Failed to initialize the application. Please try refreshing the page.');
+            alert('Failed to initialize the application. Please try refreshing the page.');
         }
     },
     
@@ -47,21 +79,51 @@ const App = {
     processUrlParameters: function() {
         const params = Utils.getUrlParams();
         
-        // Handle direct version loading
-        if (params.version) {
-            Versions.loadVersion(params.version);
-        } else {
-            // Try to load last viewed version
-            const lastVersion = Storage.getLastVersion();
-            if (lastVersion && Versions.list.includes(lastVersion)) {
-                Versions.loadVersion(lastVersion);
-            }
-        }
-        
-        // Handle search
+        // Handle direct search loading (prioritize search over version)
         if (params.search) {
             document.getElementById('search-input').value = params.search;
             Search.performSearch(params.search);
+        }
+        // Handle direct version loading only if there's no search
+        else if (params.version) {
+            Versions.loadVersion(params.version);
+        } else {
+            // Display welcome page instead of automatically loading the last viewed version
+            this.renderWelcomePage();
+        }
+    },
+    
+    /**
+     * Render welcome page when no version is selected
+     */
+    renderWelcomePage: function() {
+        const contentDisplay = document.getElementById('content-display');
+        if (contentDisplay) {
+            const welcomeHtml = `
+                <div class="welcome-page text-center py-5">
+                    <h2>Welcome to PocketMine-MP Changelog Viewer</h2>
+                    <p class="mt-4 mb-5">Select a version from the list on the left or search for specific features.</p>
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-search"></i> Search</h5>
+                                    <p class="card-text">Search for specific changes across all versions.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            contentDisplay.innerHTML = welcomeHtml;
+            contentDisplay.style.display = 'block';
+            
+            // Update title and clear current version
+            document.getElementById('current-file').textContent = 'PocketMine-MP Changelog Viewer';
+            Versions.current = null;
+            
+            // Update URL
+            window.history.replaceState({}, '', window.location.pathname);
         }
     },
     

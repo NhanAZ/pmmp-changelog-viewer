@@ -149,8 +149,9 @@ const Search = {
     /**
      * Perform a search across all versions
      * @param {string} term - Search term
+     * @param {boolean} updateHistory - Whether to update browser history (default: true)
      */
-    performSearch: async function(term) {
+    performSearch: async function(term, updateHistory = true) {
         if (this.isSearching || !term) return;
         
         try {
@@ -194,8 +195,7 @@ const Search = {
                 // Perform the search
                 const matches = this.searchInContent(content, term, {
                     headingsOnly,
-                    caseSensitive,
-                    maxResults: Storage.settings.maxResults || CONFIG.defaults.maxResults
+                    caseSensitive
                 });
                 
                 if (matches.length > 0) {
@@ -209,9 +209,11 @@ const Search = {
             // Display results
             this.displayResults();
             
-            // Update URL
-            const newUrl = Utils.createUrlWithParams({ search: term });
-            window.history.replaceState({}, '', newUrl);
+            // Update URL if needed
+            if (updateHistory) {
+                const newUrl = Utils.createUrlWithParams({ search: term });
+                window.history.pushState({ search: term }, '', newUrl);
+            }
         } catch (error) {
             console.error('Error performing search:', error);
             UI.showError('An error occurred while searching. Please try again.');
@@ -249,7 +251,7 @@ const Search = {
         const matches = [];
         
         // Default options
-        const { headingsOnly = false, caseSensitive = false, maxResults = 5 } = options;
+        const { headingsOnly = false, caseSensitive = false } = options;
         
         // Process the term
         let searchTerm = term;
@@ -280,20 +282,22 @@ const Search = {
             const headingRegex = /^#{1,6}\s+(.+)$/gm;
             let match;
             
-            while ((match = headingRegex.exec(content)) !== null && matches.length < maxResults) {
+            while ((match = headingRegex.exec(content)) !== null) {
                 const heading = caseSensitive ? match[1] : match[1].toLowerCase();
                 
                 if (isExactPhrase) {
                     if (heading.includes(searchTerm)) {
                         matches.push({
                             text: match[0],
-                            line: this.getLineNumber(content, match.index)
+                            line: this.getLineNumber(content, match.index),
+                            occurrences: this.countOccurrences(heading, searchTerm)
                         });
                     }
                 } else if (heading.includes(searchTerm)) {
                     matches.push({
                         text: match[0],
-                        line: this.getLineNumber(content, match.index)
+                        line: this.getLineNumber(content, match.index),
+                        occurrences: this.countOccurrences(heading, searchTerm)
                     });
                 }
             }
@@ -305,7 +309,7 @@ const Search = {
         const lines = content.split('\n');
         const searchTermLower = searchTerm.toLowerCase();
         
-        for (let i = 0; i < lines.length && matches.length < maxResults; i++) {
+        for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const lineToSearch = caseSensitive ? line : line.toLowerCase();
             
@@ -313,18 +317,40 @@ const Search = {
                 if (lineToSearch.includes(searchTerm)) {
                     matches.push({
                         text: line,
-                        line: i + 1
+                        line: i + 1,
+                        occurrences: this.countOccurrences(lineToSearch, searchTerm)
                     });
                 }
             } else if (lineToSearch.includes(searchTermLower)) {
                 matches.push({
                     text: line,
-                    line: i + 1
+                    line: i + 1,
+                    occurrences: this.countOccurrences(lineToSearch, searchTermLower)
                 });
             }
         }
         
         return matches;
+    },
+    
+    /**
+     * Count occurrences of a substring in a string
+     * @param {string} text - Text to search in
+     * @param {string} searchTerm - Term to count
+     * @returns {number} Number of occurrences
+     */
+    countOccurrences: function(text, searchTerm) {
+        if (!text || !searchTerm) return 0;
+        
+        let count = 0;
+        let position = 0;
+        
+        while ((position = text.indexOf(searchTerm, position)) !== -1) {
+            count++;
+            position += searchTerm.length;
+        }
+        
+        return count;
     },
     
     /**
@@ -339,7 +365,7 @@ const Search = {
         // A full implementation would parse the query and evaluate boolean expressions
         
         const matches = [];
-        const { maxResults = 5, caseSensitive = false } = options;
+        const { caseSensitive = false } = options;
         
         // Split into lines
         const lines = content.split('\n');
@@ -347,7 +373,7 @@ const Search = {
         // Process operators
         const terms = query.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
         
-        for (let i = 0; i < lines.length && matches.length < maxResults; i++) {
+        for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const lineToSearch = caseSensitive ? line : line.toLowerCase();
             
@@ -426,6 +452,16 @@ const Search = {
      * Display search results
      */
     displayResults: function() {
+        // Hide any version content and show search results
+        const contentDisplay = document.getElementById('content-display');
+        if (contentDisplay) {
+            contentDisplay.style.display = 'none';
+        }
+        
+        // Reset current version being viewed
+        Versions.current = null;
+        
+        // Show search results
         UI.showSearchResults(this.results, this.currentTerm);
     }
 }; 

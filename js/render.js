@@ -126,32 +126,97 @@ const Render = {
         }
         
         try {
-            // Convert both markdown to raw text (strip HTML tags)
-            const textA = contentA.replace(/<[^>]*>/g, '');
-            const textB = contentB.replace(/<[^>]*>/g, '');
+            // Trích xuất các phần từ nội dung
+            const sectionsA = this.extractSections(contentA);
+            const sectionsB = this.extractSections(contentB);
             
-            // Calculate the diff
-            const diff = Diff.diffLines(textA, textB);
+            // Xây dựng HTML cho việc so sánh
+            let html = '<div class="diff-container">';
             
-            // Build the HTML for the diff
-            let html = '';
+            // So sánh theo từng phần
+            const allSections = new Set([...Object.keys(sectionsA), ...Object.keys(sectionsB)]);
             
-            diff.forEach(part => {
-                const value = Utils.escapeHtml(part.value);
+            for (const section of allSections) {
+                html += `<h4 class="diff-section-title">${section}</h4>`;
                 
-                if (part.added) {
-                    html += `<div class="diff-added">${value}</div>`;
-                } else if (part.removed) {
-                    html += `<div class="diff-removed">${value}</div>`;
+                if (!sectionsA[section]) {
+                    // Phần chỉ có trong B
+                    html += `<div class="diff-section diff-added"><pre>${Utils.escapeHtml(sectionsB[section])}</pre></div>`;
+                } else if (!sectionsB[section]) {
+                    // Phần chỉ có trong A
+                    html += `<div class="diff-section diff-removed"><pre>${Utils.escapeHtml(sectionsA[section])}</pre></div>`;
                 } else {
-                    html += `<div>${value}</div>`;
+                    // Phần có trong cả hai, tính toán diff chi tiết
+                    const sectionDiff = Diff.diffLines(sectionsA[section], sectionsB[section]);
+                    
+                    if (sectionDiff.some(part => part.added || part.removed)) {
+                        // Nếu có sự khác biệt, hiển thị diff
+                        html += '<div class="diff-section">';
+                        sectionDiff.forEach(part => {
+                            const value = Utils.escapeHtml(part.value);
+                            if (part.added) {
+                                html += `<div class="diff-line diff-added"><pre>${value}</pre></div>`;
+                            } else if (part.removed) {
+                                html += `<div class="diff-line diff-removed"><pre>${value}</pre></div>`;
+                            } else {
+                                html += `<div class="diff-line"><pre>${value}</pre></div>`;
+                            }
+                        });
+                        html += '</div>';
+                    } else {
+                        // Nếu giống nhau, hiển thị thông báo
+                        html += '<div class="diff-section diff-unchanged"><p><em>No changes in this section</em></p></div>';
+                    }
                 }
-            });
+            }
             
+            html += '</div>';
             return html;
         } catch (error) {
             console.error('Error rendering diff:', error);
             return `<div class="alert alert-danger">Error generating diff: ${error.message}</div>`;
         }
+    },
+    
+    /**
+     * Extract sections from changelog content
+     * @param {string} content - Markdown content
+     * @returns {Object} Sections with titles as keys and content as values
+     */
+    extractSections: function(content) {
+        if (!content) return {};
+        
+        const sections = {};
+        let currentSection = 'General';
+        let currentContent = '';
+        
+        // Phân tích nội dung theo từng dòng
+        const lines = content.split('\n');
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            
+            // Kiểm tra xem dòng có phải là tiêu đề section không
+            if (line.startsWith('##') && !line.startsWith('###')) {
+                // Lưu section hiện tại trước khi chuyển sang section mới
+                if (currentContent.trim()) {
+                    sections[currentSection] = currentContent.trim();
+                }
+                
+                // Cập nhật section mới
+                currentSection = line.replace(/^##\s*/, '').trim();
+                currentContent = '';
+            } else {
+                // Thêm dòng vào nội dung section hiện tại
+                currentContent += line + '\n';
+            }
+        }
+        
+        // Lưu section cuối cùng
+        if (currentContent.trim()) {
+            sections[currentSection] = currentContent.trim();
+        }
+        
+        return sections;
     }
 }; 

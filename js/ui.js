@@ -15,37 +15,7 @@ const UI = {
      * Attach event listeners for UI interactions
      */
     attachEventListeners: function() {
-        // Theme toggle
-        document.getElementById('theme-toggle')?.addEventListener('click', () => {
-            const currentTheme = Storage.settings.theme;
-            
-            if (currentTheme === 'dark') {
-                Storage.updateSetting('theme', 'light');
-            } else {
-                Storage.updateSetting('theme', 'dark');
-            }
-        });
-        
-        // Settings button
-        document.getElementById('settings-btn')?.addEventListener('click', this.openSettingsModal);
-        
-        // Save settings button
-        document.getElementById('save-settings')?.addEventListener('click', this.saveSettingsFromModal);
-        
-        // Bookmark button
-        document.getElementById('btn-bookmark')?.addEventListener('click', this.toggleBookmark);
-        
-        // Clear bookmarks button
-        document.getElementById('clear-bookmarks')?.addEventListener('click', this.clearAllBookmarks);
-        
-        // Share button
-        document.getElementById('btn-share')?.addEventListener('click', this.shareCurrentView);
-        
-        // Compare button
-        document.getElementById('btn-compare')?.addEventListener('click', this.openCompareModal);
-        
-        // Start compare button
-        document.getElementById('btn-start-compare')?.addEventListener('click', this.compareVersions);
+        // Event listeners go here
     },
     
     /**
@@ -73,7 +43,10 @@ const UI = {
             contentDisplay.style.display = 'block';
         }
         
-        document.getElementById('search-results')?.style.display = 'none';
+        const searchResults = document.getElementById('search-results');
+        if (searchResults) {
+            searchResults.style.display = 'none';
+        }
     },
     
     /**
@@ -104,41 +77,103 @@ const UI = {
         const contentDisplay = document.getElementById('content-display');
         const searchResults = document.getElementById('search-results');
         
-        if (!contentDisplay || !searchResults) return;
+        if (!searchResults) return;
         
-        contentDisplay.style.display = 'none';
+        // Always hide content display
+        if (contentDisplay) {
+            contentDisplay.style.display = 'none';
+        }
+        
+        // Always make search results visible
         searchResults.style.display = 'block';
         
-        // Update header
-        document.getElementById('current-file').textContent = `Search Results: "${searchTerm}"`;
-        
-        if (results.length === 0) {
-            searchResults.innerHTML = `<div class="alert alert-info">No results found for "${searchTerm}"</div>`;
+        // If no results, show message
+        if (!results || results.length === 0) {
+            searchResults.innerHTML = `
+                <div class="alert alert-warning">
+                    <i class="bi bi-search"></i> No results found for "${searchTerm}"
+                </div>
+            `;
             return;
         }
         
-        // Build results HTML
-        let html = '<div class="search-results-container">';
+        // Calculate total matches
+        let totalMatchesCount = 0;
+        results.forEach(result => {
+            let totalOccurrences = 0;
+            result.matches.forEach(match => {
+                totalOccurrences += match.occurrences || 1; // Use occurrences if available, otherwise count as 1
+            });
+            result.totalOccurrences = totalOccurrences;
+            totalMatchesCount += totalOccurrences;
+        });
         
+        // Create filter input
+        let html = `
+            <div class="search-results">
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-filter"></i></span>
+                        <input type="text" id="result-filter" class="form-control" placeholder="Filter results...">
+                        <button class="btn btn-outline-secondary" id="clear-filter">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Found a total of <strong>${totalMatchesCount} results</strong> in ${results.length} versions</span>
+                        <button class="btn btn-sm btn-outline-primary" id="expand-all-results" data-expanded="true">Collapse All</button>
+                    </div>
+                </div>
+        `;
+        
+        // Sort results by importance (major version)
+        results.sort((a, b) => {
+            const versionA = Utils.parseVersion(a.version);
+            const versionB = Utils.parseVersion(b.version);
+            
+            if (versionA.major !== versionB.major) {
+                return versionB.major - versionA.major;
+            }
+            
+            return versionB.minor - versionA.minor;
+        });
+        
+        // Build results HTML
         results.forEach(result => {
             const version = Utils.parseVersion(result.version);
             
             html += `
-                <div class="card mb-3 search-result-card">
+                <div class="card mb-3">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Version ${version.displayName}</h5>
-                        <button class="btn btn-sm btn-primary view-version" data-version="${result.version}">View</button>
+                        <div>
+                            <h5 class="mb-0">Version ${version.displayName} <span class="badge bg-primary">${result.totalOccurrences} results</span></h5>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-secondary btn-collapse" data-target="matches-${version.major}-${version.minor}" data-expanded="true">
+                                <i class="bi bi-arrows-collapse"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary view-version" data-version="${result.version}">
+                                View Version
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" id="matches-${version.major}-${version.minor}" style="display: block;">
                         <ul class="list-group">
             `;
             
             result.matches.forEach(match => {
+                // Highlight the search term in the match text
+                const highlightedText = this.highlightSearchTerm(match.text, searchTerm);
+                
                 html += `
-                    <li class="list-group-item">
+                    <li class="list-group-item search-match-item">
                         <div class="d-flex align-items-baseline gap-2">
                             <span class="badge bg-secondary">Line ${match.line}</span>
-                            <code>${Utils.escapeHtml(match.text)}</code>
+                            <code class="match-text">${highlightedText}</code>
+                            ${match.occurrences > 1 ? `<span class="badge bg-info">${match.occurrences} times</span>` : ''}
                         </div>
                     </li>
                 `;
@@ -156,6 +191,47 @@ const UI = {
         // Set HTML and attach event listeners
         searchResults.innerHTML = html;
         
+        // Attach event listeners for expand all results button
+        document.getElementById('expand-all-results')?.addEventListener('click', () => {
+            const expandAllBtn = document.getElementById('expand-all-results');
+            const isExpanded = expandAllBtn.dataset.expanded === "true";
+            
+            if (isExpanded) {
+                // Collapse all sections
+                document.querySelectorAll('#search-results .card-body').forEach(body => {
+                    body.style.display = 'none';
+                });
+                
+                document.querySelectorAll('#search-results .btn-collapse').forEach(button => {
+                    const icon = button.querySelector('i');
+                    icon.classList.remove('bi-arrows-collapse');
+                    icon.classList.add('bi-arrows-expand');
+                    button.dataset.expanded = "false";
+                });
+                
+                // Update expand all button
+                expandAllBtn.textContent = "Expand All";
+                expandAllBtn.dataset.expanded = "false";
+            } else {
+                // Expand all sections
+                document.querySelectorAll('#search-results .card-body').forEach(body => {
+                    body.style.display = 'block';
+                });
+                
+                document.querySelectorAll('#search-results .btn-collapse').forEach(button => {
+                    const icon = button.querySelector('i');
+                    icon.classList.remove('bi-arrows-expand');
+                    icon.classList.add('bi-arrows-collapse');
+                    button.dataset.expanded = "true";
+                });
+                
+                // Update expand all button
+                expandAllBtn.textContent = "Collapse All";
+                expandAllBtn.dataset.expanded = "true";
+            }
+        });
+        
+        // Attach event listeners
         document.querySelectorAll('.view-version').forEach(button => {
             button.addEventListener('click', () => {
                 const version = button.dataset.version;
@@ -163,93 +239,118 @@ const UI = {
             });
         });
         
+        // Collapse/expand sections
+        document.querySelectorAll('.btn-collapse').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                const target = document.getElementById(targetId);
+                const icon = button.querySelector('i');
+                
+                // Check current state (stored in data attribute)
+                const isExpanded = button.dataset.expanded === "true";
+                
+                if (isExpanded) {
+                    // If expanded, collapse it
+                    target.style.display = 'none';
+                    icon.classList.remove('bi-arrows-collapse');
+                    icon.classList.add('bi-arrows-expand');
+                    button.dataset.expanded = "false";
+                } else {
+                    // If collapsed, expand it
+                    target.style.display = 'block';
+                    icon.classList.remove('bi-arrows-expand');
+                    icon.classList.add('bi-arrows-collapse');
+                    button.dataset.expanded = "true";
+                }
+            });
+        });
+        
+        // Filter results
+        const resultFilter = document.getElementById('result-filter');
+        resultFilter?.addEventListener('input', (e) => {
+            const filterText = e.target.value.toLowerCase();
+            
+            if (!filterText) {
+                document.querySelectorAll('.search-match-item').forEach(item => {
+                    item.style.display = 'block';
+                });
+                return;
+            }
+            
+            document.querySelectorAll('.search-match-item').forEach(item => {
+                const text = item.querySelector('.match-text').textContent.toLowerCase();
+                if (text.includes(filterText)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        // Clear filter
+        document.getElementById('clear-filter')?.addEventListener('click', () => {
+            if (resultFilter) {
+                resultFilter.value = '';
+                document.querySelectorAll('.search-match-item').forEach(item => {
+                    item.style.display = 'block';
+                });
+            }
+        });
+        
         // Scroll to top
         window.scrollTo(0, 0);
     },
     
     /**
-     * Update bookmark button state
-     * @param {boolean} isBookmarked - Whether current version is bookmarked
+     * Highlight search term in a text
+     * @param {string} text - Text to highlight in
+     * @param {string} term - Term to highlight
+     * @returns {string} Highlighted HTML
      */
-    updateBookmarkButton: function(isBookmarked) {
-        const button = document.getElementById('btn-bookmark');
-        if (!button) return;
+    highlightSearchTerm: function(text, term) {
+        if (!term) return Utils.escapeHtml(text);
         
-        const icon = button.querySelector('i');
-        
-        if (isBookmarked) {
-            button.classList.add('active');
-            icon?.classList.replace('bi-bookmark', 'bi-bookmark-fill');
-        } else {
-            button.classList.remove('active');
-            icon?.classList.replace('bi-bookmark-fill', 'bi-bookmark');
-        }
-    },
-    
-    /**
-     * Toggle bookmark for current version
-     */
-    toggleBookmark: function() {
-        const currentVersion = Versions.current;
-        if (!currentVersion) return;
-        
-        if (Storage.isBookmarked(currentVersion)) {
-            Storage.removeBookmark(currentVersion);
-        } else {
-            Storage.addBookmark(currentVersion);
-        }
-        
-        UI.updateBookmarkButton(Storage.isBookmarked(currentVersion));
-        UI.updateBookmarksUI();
-    },
-    
-    /**
-     * Clear all bookmarks
-     */
-    clearAllBookmarks: function() {
-        if (confirm('Are you sure you want to remove all bookmarks?')) {
-            Storage.clearBookmarks();
-            UI.updateBookmarksUI();
-            UI.updateBookmarkButton(false);
-        }
-    },
-    
-    /**
-     * Update bookmarks UI
-     */
-    updateBookmarksUI: function() {
-        const container = document.getElementById('bookmarks-container');
-        const panel = document.getElementById('bookmarks-panel');
-        
-        if (!container || !panel) return;
-        
-        if (Storage.bookmarks.length === 0) {
-            panel.classList.add('d-none');
-            return;
-        }
-        
-        panel.classList.remove('d-none');
-        container.innerHTML = '';
-        
-        Storage.bookmarks.forEach(version => {
-            const parsedVersion = Utils.parseVersion(version);
-            const chip = document.createElement('div');
-            chip.className = 'bookmark-chip';
-            chip.innerHTML = `${parsedVersion.displayName} <i class="bi bi-x"></i>`;
-            chip.dataset.version = version;
+        // Handle advanced search with operators
+        if (term.includes(' AND ') || term.includes(' OR ') || term.includes(' NOT ')) {
+            // Extract terms from the query
+            const terms = term.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+            let highlightedText = Utils.escapeHtml(text);
             
-            chip.addEventListener('click', event => {
-                if (event.target.tagName.toLowerCase() === 'i') {
-                    Storage.removeBookmark(version);
-                    UI.updateBookmarksUI();
-                    UI.updateBookmarkButton(Storage.isBookmarked(Versions.current));
-                } else {
-                    Versions.loadVersion(version);
+            terms.forEach(t => {
+                if (t === 'AND' || t === 'OR' || t === 'NOT') return;
+                
+                // Handle quoted phrases
+                if (/^"(.+)"$/.test(t)) {
+                    t = t.substring(1, t.length - 1);
                 }
+                
+                highlightedText = this.applyHighlight(highlightedText, t);
             });
             
-            container.appendChild(chip);
-        });
+            return highlightedText;
+        }
+        
+        // Handle exact phrase (quoted)
+        let searchTerm = term;
+        if (/^"(.+)"$/.test(term)) {
+            searchTerm = term.substring(1, term.length - 1);
+        }
+        
+        return this.applyHighlight(Utils.escapeHtml(text), searchTerm);
+    },
+    
+    /**
+     * Apply highlight to a text for a specific term
+     * @param {string} html - HTML text
+     * @param {string} term - Term to highlight
+     * @returns {string} HTML with highlights
+     */
+    applyHighlight: function(html, term) {
+        if (!term) return html;
+        
+        // Create a regex that ignores case
+        const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        return html.replace(regex, match => `<mark class="highlight">${match}</mark>`);
     },
     
     /**
@@ -261,7 +362,7 @@ const UI = {
         
         if (!container || !historySection) return;
         
-        if (!Storage.settings.saveSearchHistory || Storage.searchHistory.length === 0) {
+        if (Storage.searchHistory.length === 0) {
             historySection.classList.add('d-none');
             return;
         }
@@ -281,167 +382,5 @@ const UI = {
             
             container.appendChild(badge);
         });
-    },
-    
-    /**
-     * Open settings modal
-     */
-    openSettingsModal: function() {
-        // Set current values
-        document.getElementById('theme-select').value = Storage.settings.theme;
-        document.getElementById('font-size').value = Storage.settings.fontSize;
-        document.getElementById('save-search-history').checked = Storage.settings.saveSearchHistory;
-        document.getElementById('max-results').value = Storage.settings.maxResults;
-        
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('settings-modal'));
-        modal.show();
-    },
-    
-    /**
-     * Save settings from modal
-     */
-    saveSettingsFromModal: function() {
-        const theme = document.getElementById('theme-select').value;
-        const fontSize = document.getElementById('font-size').value;
-        const saveSearchHistory = document.getElementById('save-search-history').checked;
-        const maxResults = parseInt(document.getElementById('max-results').value, 10);
-        
-        Storage.settings = {
-            ...Storage.settings,
-            theme,
-            fontSize,
-            saveSearchHistory,
-            maxResults: isNaN(maxResults) ? CONFIG.defaults.maxResults : maxResults
-        };
-        
-        Storage.saveSettings();
-        
-        // Hide modal
-        bootstrap.Modal.getInstance(document.getElementById('settings-modal'))?.hide();
-    },
-    
-    /**
-     * Share current view
-     */
-    shareCurrentView: function() {
-        const url = window.location.href;
-        
-        try {
-            // Try to use the modern clipboard API
-            navigator.clipboard.writeText(url)
-                .then(() => {
-                    alert('Link copied to clipboard!');
-                })
-                .catch(() => {
-                    // Fallback for older browsers
-                    prompt('Copy this link to share:', url);
-                });
-        } catch (error) {
-            // Final fallback
-            prompt('Copy this link to share:', url);
-        }
-    },
-    
-    /**
-     * Open compare modal
-     */
-    openCompareModal: function() {
-        // Populate version dropdowns
-        const versionA = document.getElementById('version-a');
-        const versionB = document.getElementById('version-b');
-        
-        if (!versionA || !versionB) return;
-        
-        versionA.innerHTML = '';
-        versionB.innerHTML = '';
-        
-        // Add all versions to the dropdowns
-        Versions.list.forEach(version => {
-            const parsedVersion = Utils.parseVersion(version);
-            
-            const option = document.createElement('option');
-            option.value = version;
-            option.textContent = parsedVersion.displayName;
-            
-            versionA.appendChild(option.cloneNode(true));
-            versionB.appendChild(option);
-        });
-        
-        // If current version exists, select it in first dropdown
-        if (Versions.current) {
-            versionA.value = Versions.current;
-            
-            // Try to select the previous version in the second dropdown
-            const currentIndex = Versions.list.indexOf(Versions.current);
-            if (currentIndex > 0 && currentIndex < Versions.list.length) {
-                versionB.value = Versions.list[currentIndex + 1] || Versions.list[0];
-            }
-        }
-        
-        // Clear previous results
-        document.getElementById('compare-result').innerHTML = '';
-        
-        // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('compare-modal'));
-        modal.show();
-    },
-    
-    /**
-     * Compare selected versions
-     */
-    compareVersions: async function() {
-        const versionA = document.getElementById('version-a').value;
-        const versionB = document.getElementById('version-b').value;
-        const resultContainer = document.getElementById('compare-result');
-        
-        if (!versionA || !versionB || !resultContainer) return;
-        
-        if (versionA === versionB) {
-            resultContainer.innerHTML = '<div class="alert alert-warning">Please select different versions to compare</div>';
-            return;
-        }
-        
-        try {
-            UI.showLoading();
-            resultContainer.innerHTML = '<div class="text-center">Comparing versions...</div>';
-            
-            // Fetch content for both versions if not in cache
-            let contentA = Versions.cache[versionA];
-            let contentB = Versions.cache[versionB];
-            
-            if (!contentA) {
-                const response = await fetch(`${CONFIG.changelogPath}${versionA}`);
-                if (!response.ok) throw new Error(`Failed to load version ${versionA}`);
-                contentA = await response.text();
-                Versions.cache[versionA] = contentA;
-            }
-            
-            if (!contentB) {
-                const response = await fetch(`${CONFIG.changelogPath}${versionB}`);
-                if (!response.ok) throw new Error(`Failed to load version ${versionB}`);
-                contentB = await response.text();
-                Versions.cache[versionB] = contentB;
-            }
-            
-            // Render diff
-            const diffHtml = Render.renderDiff(contentA, contentB);
-            
-            // Show result
-            const parsedA = Utils.parseVersion(versionA);
-            const parsedB = Utils.parseVersion(versionB);
-            
-            resultContainer.innerHTML = `
-                <div class="alert alert-info">
-                    Comparing version ${parsedA.displayName} with ${parsedB.displayName}
-                </div>
-                <div class="diff-container">${diffHtml}</div>
-            `;
-        } catch (error) {
-            console.error('Error comparing versions:', error);
-            resultContainer.innerHTML = `<div class="alert alert-danger">Error comparing versions: ${error.message}</div>`;
-        } finally {
-            UI.hideLoading();
-        }
     }
 }; 

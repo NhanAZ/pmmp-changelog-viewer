@@ -15,8 +15,8 @@ const Compare = {
      * Attach event listeners for compare functionality
      */
     attachEventListeners: function() {
-        document.getElementById('btn-compare')?.addEventListener('click', this.openCompareModal);
-        document.getElementById('btn-start-compare')?.addEventListener('click', this.compareVersions);
+        document.getElementById('btn-compare')?.addEventListener('click', this.openCompareModal.bind(this));
+        document.getElementById('btn-start-compare')?.addEventListener('click', this.compareVersions.bind(this));
     },
     
     /**
@@ -135,11 +135,11 @@ const Compare = {
             }
             
             // Extract sections from both contents
-            const sectionsA = this.extractSections(contentA);
-            const sectionsB = this.extractSections(contentB);
+            const sectionsA = Compare.extractSections(contentA);
+            const sectionsB = Compare.extractSections(contentB);
             
             // Generate comparison HTML
-            const diffHtml = this.generateComparisonHTML(sectionsA, sectionsB, versionA, versionB);
+            const diffHtml = Compare.generateComparisonHTML(sectionsA, sectionsB, versionA, versionB);
             
             // Show result
             const parsedA = Utils.parseVersion(versionA);

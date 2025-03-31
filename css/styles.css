@@ -1,93 +1,28 @@
 /* Variables */
 :root {
     /* Light theme colors */
-    --light-primary-color: #0d6efd;
-    --light-primary-hover: #0b5ed7;
-    --light-primary-light: #cfe2ff;
-    --light-secondary-color: #6c757d;
-    --light-background-color: #f8f9fa;
-    --light-card-bg: #ffffff;
-    --light-text-color: #212529;
-    --light-heading-color: #343a40;
-    --light-border-color: #dee2e6;
-    --light-muted-color: #6c757d;
-    --light-highlight-color: #ffff00;
-    --light-highlight-bg: rgba(255, 255, 0, 0.3);
-    --light-code-bg: #f0f0f0;
-    --light-code-color: #d63384;
-    --light-mark-bg: #fff3cd;
-    --light-mark-color: #664d03;
-    --light-shadow-color: rgba(0, 0, 0, 0.1);
-    --light-diff-added: #e6ffed;
-    --light-diff-removed: #ffebe9;
-    
-    /* Dark theme colors */
-    --dark-primary-color: #3485fd;
-    --dark-primary-hover: #2d73dc;
-    --dark-primary-light: #203a5d;
-    --dark-secondary-color: #8f959d;
-    --dark-background-color: #212529;
-    --dark-card-bg: #2b3035;
-    --dark-text-color: #e9ecef;
-    --dark-heading-color: #f8f9fa;
-    --dark-border-color: #495057;
-    --dark-muted-color: #adb5bd;
-    --dark-highlight-color: #ffda00;
-    --dark-highlight-bg: rgba(255, 218, 0, 0.15);
-    --dark-code-bg: #343a40;
-    --dark-code-color: #ff8bc0;
-    --dark-mark-bg: #554700;
-    --dark-mark-color: #fcd34d;
-    --dark-shadow-color: rgba(0, 0, 0, 0.5);
-    --dark-diff-added: #124c2f;
-    --dark-diff-removed: #5e1f1d;
-    
-    /* Default to light theme */
-    --primary-color: var(--light-primary-color);
-    --primary-hover: var(--light-primary-hover);
-    --primary-light: var(--light-primary-light);
-    --secondary-color: var(--light-secondary-color);
-    --background-color: var(--light-background-color);
-    --card-bg: var(--light-card-bg);
-    --text-color: var(--light-text-color);
-    --heading-color: var(--light-heading-color);
-    --border-color: var(--light-border-color);
-    --muted-color: var(--light-muted-color);
-    --highlight-color: var(--light-highlight-color);
-    --highlight-bg: var(--light-highlight-bg);
-    --code-bg: var(--light-code-bg);
-    --code-color: var(--light-code-color);
-    --mark-bg: var(--light-mark-bg);
-    --mark-color: var(--light-mark-color);
-    --shadow-color: var(--light-shadow-color);
-    --diff-added: var(--light-diff-added);
-    --diff-removed: var(--light-diff-removed);
+    --primary-color: #0d6efd;
+    --primary-hover: #0b5ed7;
+    --primary-light: #cfe2ff;
+    --secondary-color: #6c757d;
+    --background-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-color: #212529;
+    --heading-color: #343a40;
+    --border-color: #dee2e6;
+    --muted-color: #6c757d;
+    --highlight-color: #ffff00;
+    --highlight-bg: rgba(255, 255, 0, 0.3);
+    --code-bg: #f0f0f0;
+    --code-color: #d63384;
+    --mark-bg: #fff3cd;
+    --mark-color: #664d03;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --diff-added: #e6ffed;
+    --diff-removed: #ffebe9;
     
     /* Other variables */
     --transition-time: 0.3s;
-}
-
-/* Dark theme class */
-.dark-theme {
-    --primary-color: var(--dark-primary-color);
-    --primary-hover: var(--dark-primary-hover);
-    --primary-light: var(--dark-primary-light);
-    --secondary-color: var(--dark-secondary-color);
-    --background-color: var(--dark-background-color);
-    --card-bg: var(--dark-card-bg);
-    --text-color: var(--dark-text-color);
-    --heading-color: var(--dark-heading-color);
-    --border-color: var(--dark-border-color);
-    --muted-color: var(--dark-muted-color);
-    --highlight-color: var(--dark-highlight-color);
-    --highlight-bg: var(--dark-highlight-bg);
-    --code-bg: var(--dark-code-bg);
-    --code-color: var(--dark-code-color);
-    --mark-bg: var(--dark-mark-bg);
-    --mark-color: var(--dark-mark-color);
-    --shadow-color: var(--dark-shadow-color);
-    --diff-added: var(--dark-diff-added);
-    --diff-removed: var(--dark-diff-removed);
 }
 
 /* Base styles */
@@ -228,30 +163,6 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
 }
 
-/* Dark mode overrides for Bootstrap components */
-.dark-theme .btn-outline-secondary {
-    color: var(--dark-muted-color);
-    border-color: var(--dark-border-color);
-}
-
-.dark-theme .btn-outline-secondary:hover {
-    background-color: var(--dark-secondary-color);
-    color: var(--dark-text-color);
-}
-
-.dark-theme .modal-content {
-    background-color: var(--dark-card-bg);
-    color: var(--dark-text-color);
-}
-
-.dark-theme .close {
-    color: var(--dark-text-color);
-}
-
-.dark-theme .text-muted {
-    color: var(--dark-muted-color) !important;
-}
-
 /* Content display */
 #content-display {
     min-height: 200px;
@@ -342,31 +253,58 @@ body {
 }
 
 /* Diff styling */
+.diff-container {
+    font-family: monospace;
+    margin-top: 20px;
+}
+
+.diff-section-title {
+    background-color: #f0f0f0;
+    padding: 8px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.diff-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+.diff-line {
+    padding: 2px 0;
+    white-space: pre-wrap;
+}
+
 .diff-added {
-    background-color: var(--diff-added);
-    display: block;
-    padding: 0.2em;
-    margin: 0.2em 0;
+    background-color: #e6ffed;
+    color: #22863a;
+    border-left: 3px solid #34d058;
+    padding-left: 5px;
 }
 
 .diff-removed {
-    background-color: var(--diff-removed);
-    display: block;
-    padding: 0.2em;
-    margin: 0.2em 0;
+    background-color: #ffeef0;
+    color: #cb2431;
+    border-left: 3px solid #d73a49;
+    padding-left: 5px;
 }
 
-/* Font size variations */
-.font-small {
-    font-size: 14px;
+.diff-unchanged {
+    color: #6c757d;
+    font-style: italic;
 }
 
-.font-medium {
-    font-size: 16px;
-}
-
-.font-large {
-    font-size: 18px;
+/* Ensure pre tags in diffs display properly */
+.diff-line pre {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow-x: auto;
+    white-space: pre-wrap;
 }
 
 /* Misc utilities */
@@ -429,4 +367,36 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: var(--secondary-color);
+}
+
+.highlight {
+    background-color: var(--highlight-bg);
+    color: var(--text-color);
+    font-weight: bold;
+    border-radius: 2px;
+    padding: 0 2px;
+    box-shadow: 0 0 0 1px var(--highlight-color);
+}
+
+/* Search results styling */
+.search-results-container {
+    max-width: 100%;
+}
+
+.search-match-item {
+    transition: background-color 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.search-match-item:hover {
+    background-color: var(--primary-light);
+    border-left-color: var(--primary-color);
+}
+
+.search-match-item code {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
 } 
