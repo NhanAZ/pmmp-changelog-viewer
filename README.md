@@ -5,20 +5,22 @@ A modern, responsive web application for viewing and searching PocketMine-MP cha
 ## Features
 
 - 📱 Responsive design for desktop and mobile
-- 🔍 Advanced search capabilities
-- 🌙 Dark mode support
-- 📊 Version comparison tool
-- 🔖 Bookmark system
+- 🔍 Advanced search capabilities with filter options
+- 📈 Loading progress bar with status updates
+- 🔄 Expandable/collapsible version groups
 - 📋 Search history
-- 🔗 Shareable links
+- 🔗 Shareable links via URL parameters
 
 ## How to Use
 
 1. Browse the version list to find a specific changelog
 2. Use the search functionality to find specific changes across all versions
-3. Compare two different versions to see what changed
-4. Bookmark important versions for quick access
-5. Share links to specific versions or search results
+3. Filter search results for easier navigation
+4. Use the URL parameters to share specific versions or search results
+
+## Live Demo
+
+Visit [https://nhanaz.github.io/pmmp-changelog-viewer/](https://nhanaz.github.io/pmmp-changelog-viewer/) to see the application in action.
 
 ## Development
 
@@ -37,7 +39,6 @@ This is a pure static web application designed to be hosted on GitHub Pages. It 
   - `search.js` - Search functionality
   - `versions.js` - Version management
   - `render.js` - Markdown rendering
-  - `compare.js` - Version comparison
 - `changelogs/` - Changelog markdown files
   - `versions.json` - List of available versions
 
@@ -55,6 +56,8 @@ npm install
 npm start
 ```
 
+**Security Note**: The current version of browser-sync includes a dependency (eazy-logger) with a prototype pollution vulnerability (CVE-2024-57075). This is a development dependency only and doesn't affect the deployed application. Consider using an alternative local server for development if security is a concern.
+
 ### Adding New Changelogs
 
 1. Add your markdown changelog file to the `changelogs/` directory
@@ -70,6 +73,7 @@ The repository includes a GitHub Action that automatically updates changelogs fr
 - Copies new changelog files to the `changelogs/` directory
 - Automatically updates the `versions.json` file
 - Commits and pushes changes if any updates are found
+- Automatically deploys to GitHub Pages
 
 ## Deployment
 
@@ -84,7 +88,7 @@ To deploy to GitHub Pages:
 - Bootstrap 5 for UI components
 - Marked.js for Markdown parsing
 - highlight.js for code syntax highlighting
-- diff.js for version comparison
+- browser-sync for local development
 
 ## Browser Support
 
