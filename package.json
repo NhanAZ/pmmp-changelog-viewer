@@ -1,0 +1,20 @@
+{
+  "name": "pmmp-changelog-viewer",
+  "version": "1.0.0",
+  "description": "A static web application to view PocketMine-MP changelogs",
+  "scripts": {
+    "start": "browser-sync start --server --files '*.html, css/*.css, js/*.js'",
+    "build": "echo 'This is a static website, no build step required'"
+  },
+  "keywords": [
+    "pocketmine",
+    "changelog",
+    "viewer",
+    "static"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^2.29.3"
+  }
+}

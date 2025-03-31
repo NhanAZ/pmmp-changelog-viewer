@@ -1,0 +1,432 @@
+/* Variables */
+:root {
+    /* Light theme colors */
+    --light-primary-color: #0d6efd;
+    --light-primary-hover: #0b5ed7;
+    --light-primary-light: #cfe2ff;
+    --light-secondary-color: #6c757d;
+    --light-background-color: #f8f9fa;
+    --light-card-bg: #ffffff;
+    --light-text-color: #212529;
+    --light-heading-color: #343a40;
+    --light-border-color: #dee2e6;
+    --light-muted-color: #6c757d;
+    --light-highlight-color: #ffff00;
+    --light-highlight-bg: rgba(255, 255, 0, 0.3);
+    --light-code-bg: #f0f0f0;
+    --light-code-color: #d63384;
+    --light-mark-bg: #fff3cd;
+    --light-mark-color: #664d03;
+    --light-shadow-color: rgba(0, 0, 0, 0.1);
+    --light-diff-added: #e6ffed;
+    --light-diff-removed: #ffebe9;
+    
+    /* Dark theme colors */
+    --dark-primary-color: #3485fd;
+    --dark-primary-hover: #2d73dc;
+    --dark-primary-light: #203a5d;
+    --dark-secondary-color: #8f959d;
+    --dark-background-color: #212529;
+    --dark-card-bg: #2b3035;
+    --dark-text-color: #e9ecef;
+    --dark-heading-color: #f8f9fa;
+    --dark-border-color: #495057;
+    --dark-muted-color: #adb5bd;
+    --dark-highlight-color: #ffda00;
+    --dark-highlight-bg: rgba(255, 218, 0, 0.15);
+    --dark-code-bg: #343a40;
+    --dark-code-color: #ff8bc0;
+    --dark-mark-bg: #554700;
+    --dark-mark-color: #fcd34d;
+    --dark-shadow-color: rgba(0, 0, 0, 0.5);
+    --dark-diff-added: #124c2f;
+    --dark-diff-removed: #5e1f1d;
+    
+    /* Default to light theme */
+    --primary-color: var(--light-primary-color);
+    --primary-hover: var(--light-primary-hover);
+    --primary-light: var(--light-primary-light);
+    --secondary-color: var(--light-secondary-color);
+    --background-color: var(--light-background-color);
+    --card-bg: var(--light-card-bg);
+    --text-color: var(--light-text-color);
+    --heading-color: var(--light-heading-color);
+    --border-color: var(--light-border-color);
+    --muted-color: var(--light-muted-color);
+    --highlight-color: var(--light-highlight-color);
+    --highlight-bg: var(--light-highlight-bg);
+    --code-bg: var(--light-code-bg);
+    --code-color: var(--light-code-color);
+    --mark-bg: var(--light-mark-bg);
+    --mark-color: var(--light-mark-color);
+    --shadow-color: var(--light-shadow-color);
+    --diff-added: var(--light-diff-added);
+    --diff-removed: var(--light-diff-removed);
+    
+    /* Other variables */
+    --transition-time: 0.3s;
+}
+
+/* Dark theme class */
+.dark-theme {
+    --primary-color: var(--dark-primary-color);
+    --primary-hover: var(--dark-primary-hover);
+    --primary-light: var(--dark-primary-light);
+    --secondary-color: var(--dark-secondary-color);
+    --background-color: var(--dark-background-color);
+    --card-bg: var(--dark-card-bg);
+    --text-color: var(--dark-text-color);
+    --heading-color: var(--dark-heading-color);
+    --border-color: var(--dark-border-color);
+    --muted-color: var(--dark-muted-color);
+    --highlight-color: var(--dark-highlight-color);
+    --highlight-bg: var(--dark-highlight-bg);
+    --code-bg: var(--dark-code-bg);
+    --code-color: var(--dark-code-color);
+    --mark-bg: var(--dark-mark-bg);
+    --mark-color: var(--dark-mark-color);
+    --shadow-color: var(--dark-shadow-color);
+    --diff-added: var(--dark-diff-added);
+    --diff-removed: var(--dark-diff-removed);
+}
+
+/* Base styles */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    transition: background-color var(--transition-time), color var(--transition-time);
+    line-height: 1.6;
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Card and containers */
+.card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: all var(--transition-time);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.card:hover {
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.card-header {
+    background-color: var(--card-bg);
+    border-bottom-color: var(--border-color);
+    padding: 12px 16px;
+    font-weight: 500;
+    color: var(--heading-color);
+}
+
+.card-body {
+    min-height: 100px;
+    padding: 1rem;
+}
+
+/* Version tree */
+.version-tree {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.version-group {
+    margin-bottom: 10px;
+}
+
+.version-group-header {
+    padding: 10px 15px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+    color: var(--heading-color);
+}
+
+.version-group-header:hover {
+    background-color: var(--primary-light);
+}
+
+.version-group-header::after {
+    content: "\F282";
+    font-family: "bootstrap-icons";
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+}
+
+.version-group-header.collapsed::after {
+    transform: rotate(180deg);
+}
+
+.version-sublist {
+    padding-left: 12px;
+    max-height: 250px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+}
+
+.version-sublist.collapsed {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.version-item {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition: all 0.2s;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.version-item:hover {
+    background-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.version-item.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* Form controls */
+.form-control, .form-select {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+    transition: all 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+/* Dark mode overrides for Bootstrap components */
+.dark-theme .btn-outline-secondary {
+    color: var(--dark-muted-color);
+    border-color: var(--dark-border-color);
+}
+
+.dark-theme .btn-outline-secondary:hover {
+    background-color: var(--dark-secondary-color);
+    color: var(--dark-text-color);
+}
+
+.dark-theme .modal-content {
+    background-color: var(--dark-card-bg);
+    color: var(--dark-text-color);
+}
+
+.dark-theme .close {
+    color: var(--dark-text-color);
+}
+
+.dark-theme .text-muted {
+    color: var(--dark-muted-color) !important;
+}
+
+/* Content display */
+#content-display {
+    min-height: 200px;
+    opacity: 1;
+    transition: opacity 0.3s;
+    padding: 0.5rem;
+}
+
+#content-display:empty {
+    display: none;
+}
+
+/* Markdown styling */
+#content-display h1 {
+    font-size: 1.75rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--heading-color);
+}
+
+#content-display h2 {
+    font-size: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--heading-color);
+}
+
+#content-display h3 {
+    font-size: 1.25rem;
+    margin-top: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--heading-color);
+}
+
+#content-display p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+#content-display ul, #content-display ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+#content-display li {
+    margin-bottom: 0.5rem;
+}
+
+#content-display code {
+    padding: 0.2em 0.4em;
+    background-color: var(--code-bg);
+    color: var(--code-color);
+    border-radius: 3px;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875em;
+}
+
+#content-display pre {
+    background-color: var(--code-bg);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+#content-display pre code {
+    padding: 0;
+    background-color: transparent;
+    color: inherit;
+}
+
+#content-display blockquote {
+    padding-left: 1rem;
+    border-left: 4px solid var(--border-color);
+    margin-left: 0;
+    margin-bottom: 1rem;
+    color: var(--muted-color);
+}
+
+/* Highlighted search results */
+.search-highlight {
+    background-color: var(--highlight-bg);
+    color: var(--text-color);
+    padding: 0.1em 0;
+    border-radius: 2px;
+}
+
+/* Diff styling */
+.diff-added {
+    background-color: var(--diff-added);
+    display: block;
+    padding: 0.2em;
+    margin: 0.2em 0;
+}
+
+.diff-removed {
+    background-color: var(--diff-removed);
+    display: block;
+    padding: 0.2em;
+    margin: 0.2em 0;
+}
+
+/* Font size variations */
+.font-small {
+    font-size: 14px;
+}
+
+.font-medium {
+    font-size: 16px;
+}
+
+.font-large {
+    font-size: 18px;
+}
+
+/* Misc utilities */
+.badge {
+    transition: all var(--transition-time);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Bookmark chips */
+.bookmark-chip {
+    background-color: var(--primary-light);
+    color: var(--text-color);
+    padding: 5px 10px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.bookmark-chip:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.bookmark-chip .bi-x {
+    margin-left: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--secondary-color);
+} 

@@ -1,0 +1,82 @@
+name: Update Changelogs
+
+on:
+  # Chạy hàng ngày vào lúc 00:00 UTC
+  schedule:
+    - cron: '0 0 * * *'
+  
+  # Cho phép chạy thủ công từ tab Actions
+  workflow_dispatch:
+
+jobs:
+  update-changelogs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install -g json
+          
+      - name: Clone PocketMine-MP repository
+        run: |
+          git clone --depth 1 --branch stable --single-branch https://github.com/pmmp/PocketMine-MP.git /tmp/pmmp
+          
+      - name: Update changelogs
+        run: |
+          # Tạo thư mục changelogs nếu chưa tồn tại
+          mkdir -p changelogs
+          
+          # Sao chép các tệp changelog từ repo PocketMine-MP
+          cp -f /tmp/pmmp/changelogs/*.md changelogs/
+          
+          # Tạo danh sách tất cả các tệp changelog và sắp xếp theo thứ tự giảm dần
+          cd changelogs
+          CHANGELOG_FILES=$(ls -1 *.md | sort -V -r)
+          
+          # Tạo mảng JSON từ danh sách file
+          JSON_ARRAY="["
+          FIRST=true
+          for file in $CHANGELOG_FILES; do
+            if [ "$FIRST" = true ]; then
+              JSON_ARRAY="$JSON_ARRAY\"$file\""
+              FIRST=false
+            else
+              JSON_ARRAY="$JSON_ARRAY, \"$file\""
+            fi
+          done
+          JSON_ARRAY="$JSON_ARRAY]"
+          
+          # Tạo JSON object và lưu vào file versions.json
+          echo "{\"versions\": $JSON_ARRAY}" | json -o json-4 > versions.json
+          
+          # Báo cáo kết quả
+          echo "Đã cập nhật $(echo $CHANGELOG_FILES | wc -w) tệp changelog"
+          cd ..
+          
+      - name: Check for changes
+        id: git-check
+        run: |
+          git add changelogs/
+          git status
+          git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
+          
+      - name: Commit changes
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git commit -m "chore: Cập nhật changelog từ repo PocketMine-MP chính thức"
+          
+      - name: Push changes
+        if: steps.git-check.outputs.changes == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }} 
