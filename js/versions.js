@@ -37,55 +37,45 @@ const Versions = {
         if (!versionList) return;
         
         // Clear existing content
-        versionList.innerHTML = '';
+        // versionList.innerHTML = ''; - Don't clear the entire version list because we need to keep structure
         
         // Create version groups
         Object.keys(this.grouped).sort((a, b) => parseInt(b) - parseInt(a)).forEach(majorVersion => {
             const versions = this.grouped[majorVersion];
             
-            // Create group container
-            const groupDiv = document.createElement('div');
-            groupDiv.className = 'version-group';
+            // Find the existing sublist for this major version
+            const subList = document.getElementById(`version-group-${majorVersion}`);
+            if (!subList) return; // Skip if the container doesn't exist in HTML
             
-            // Create group header
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'version-group-header';
-            headerDiv.dataset.group = majorVersion;
-            headerDiv.textContent = `PocketMine-MP ${majorVersion}.x`;
-            
-            // Create version sublist
-            const sublistDiv = document.createElement('div');
-            sublistDiv.className = 'version-sublist';
-            sublistDiv.id = `version-group-${majorVersion}`;
+            // Clear existing content in the sublist
+            subList.innerHTML = '';
             
             // Add versions to sublist
             versions.forEach(version => {
-                const versionItem = document.createElement('div');
-                versionItem.className = 'version-item';
-                versionItem.dataset.version = version.file;
-                versionItem.textContent = version.displayName;
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item version-item';
+                listItem.dataset.version = version.file;
+                listItem.textContent = version.parsed.displayName;
                 
                 // Add beta/alpha badge if needed
-                if (version.isAlpha) {
+                if (version.parsed.isAlpha) {
                     const badge = document.createElement('span');
                     badge.className = 'badge bg-warning text-dark ms-2';
                     badge.textContent = 'Alpha';
-                    versionItem.appendChild(badge);
-                } else if (version.isBeta) {
+                    listItem.appendChild(badge);
+                } else if (version.parsed.isBeta) {
                     const badge = document.createElement('span');
                     badge.className = 'badge bg-info text-dark ms-2';
                     badge.textContent = 'Beta';
-                    versionItem.appendChild(badge);
+                    listItem.appendChild(badge);
                 }
                 
-                sublistDiv.appendChild(versionItem);
+                subList.appendChild(listItem);
             });
-            
-            // Build group
-            groupDiv.appendChild(headerDiv);
-            groupDiv.appendChild(sublistDiv);
-            versionList.appendChild(groupDiv);
         });
+        
+        // Attach event listeners after updating the DOM
+        this.attachEventListeners();
     },
     
     /**
