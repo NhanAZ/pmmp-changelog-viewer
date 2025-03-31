@@ -28,6 +28,13 @@ const Search = {
         document.getElementById('search-button')?.addEventListener('click', () => {
             const term = document.getElementById('search-input')?.value?.trim();
             if (term) {
+                // Check if we should auto-enable current version search
+                if (Versions.current) {
+                    const searchCurrentVersionCheckbox = document.getElementById('search-current-version');
+                    if (searchCurrentVersionCheckbox) {
+                        searchCurrentVersionCheckbox.checked = true;
+                    }
+                }
                 this.performSearch(term);
             }
         });
@@ -36,6 +43,13 @@ const Search = {
             if (e.key === 'Enter') {
                 const term = e.target.value.trim();
                 if (term) {
+                    // Check if we should auto-enable current version search
+                    if (Versions.current) {
+                        const searchCurrentVersionCheckbox = document.getElementById('search-current-version');
+                        if (searchCurrentVersionCheckbox) {
+                            searchCurrentVersionCheckbox.checked = true;
+                        }
+                    }
                     this.performSearch(term);
                 }
             }
@@ -150,14 +164,33 @@ const Search = {
      * Perform a search across all versions
      * @param {string} term - Search term
      * @param {boolean} updateHistory - Whether to update browser history (default: true)
+     * @param {boolean} currentVersionOnly - Whether to search only in the current version (default: false)
      */
-    performSearch: async function(term, updateHistory = true) {
+    performSearch: async function(term, updateHistory = true, currentVersionOnly = false) {
         if (this.isSearching || !term) return;
         
         try {
             this.isSearching = true;
             this.currentTerm = term;
-            UI.showLoading(`Preparing to search for "${term}"...`);
+            
+            // Determine if we should search only the current version
+            // Check if the user is currently viewing a specific version
+            if (!currentVersionOnly) {
+                const currentVersion = Versions.current;
+                const searchInCurrentVersion = document.getElementById('search-current-version')?.checked || false;
+                
+                // If a version is being viewed and the checkbox is checked, search only that version
+                if (currentVersion && searchInCurrentVersion) {
+                    currentVersionOnly = true;
+                }
+            }
+            
+            // Update loading text based on search scope
+            if (currentVersionOnly) {
+                UI.showLoading(`Searching for "${term}" in current version only...`);
+            } else {
+                UI.showLoading(`Preparing to search for "${term}" across all versions...`);
+            }
             
             // Save to search history
             Storage.addSearchTerm(term);
@@ -167,8 +200,15 @@ const Search = {
             this.results = [];
             
             // Get versions to search in
-            const versionFilter = document.getElementById('version-filter')?.value;
-            const versionsToSearch = this.getVersionsToSearch(versionFilter);
+            let versionsToSearch;
+            if (currentVersionOnly && Versions.current) {
+                // If searching only current version, we'll just search that one
+                versionsToSearch = [Versions.current];
+            } else {
+                // Otherwise get all versions based on filter
+                const versionFilter = document.getElementById('version-filter')?.value;
+                versionsToSearch = this.getVersionsToSearch(versionFilter);
+            }
             
             // Get search options
             const headingsOnly = document.getElementById('filter-heading-only')?.checked || false;
@@ -222,8 +262,16 @@ const Search = {
             
             // Update URL if needed
             if (updateHistory) {
-                const newUrl = Utils.createUrlWithParams({ search: term });
-                window.history.pushState({ search: term }, '', newUrl);
+                // Check if we're viewing a specific version and need to maintain it in URL
+                let params = { search: term };
+                
+                // If searching only in current version, keep version parameter
+                if (currentVersionOnly && Versions.current) {
+                    params.version = Versions.current;
+                }
+                
+                const newUrl = Utils.createUrlWithParams(params);
+                window.history.pushState({ search: term, version: params.version }, '', newUrl);
             }
         } catch (error) {
             console.error('Error performing search:', error);

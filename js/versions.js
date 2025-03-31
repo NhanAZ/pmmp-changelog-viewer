@@ -264,8 +264,8 @@ const Versions = {
             searchResults.style.display = 'none';
         }
         
-        // Render content
-        UI.renderContent(content);
+        // Render content using UI module
+        UI.displayVersion(version, content);
         
         // Update UI elements
         document.querySelectorAll('.version-item').forEach(item => {

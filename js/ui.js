@@ -130,6 +130,9 @@ const UI = {
             contentDisplay.style.display = 'none';
         }
         
+        // Hide search-in-current-version option when showing search results
+        this.updateSearchInCurrentVersionOption(false);
+        
         // Always make search results visible
         searchResults.style.display = 'block';
         
@@ -317,19 +320,42 @@ const UI = {
             const filterText = e.target.value.toLowerCase();
             
             if (!filterText) {
+                // Show all items
                 document.querySelectorAll('.search-match-item').forEach(item => {
                     item.style.display = 'block';
                 });
+                
+                // Show all version cards
+                document.querySelectorAll('#search-results .card').forEach(card => {
+                    card.style.display = 'block';
+                });
+                
                 return;
             }
             
+            // Track which cards have visible items
+            const cardsWithVisibleItems = new Set();
+            
+            // First filter individual items
             document.querySelectorAll('.search-match-item').forEach(item => {
                 const text = item.querySelector('.match-text').textContent.toLowerCase();
-                if (text.includes(filterText)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
+                const isVisible = text.includes(filterText);
+                
+                item.style.display = isVisible ? 'block' : 'none';
+                
+                // If visible, track its parent card
+                if (isVisible) {
+                    const cardBody = item.closest('.card-body');
+                    const card = cardBody?.closest('.card');
+                    if (card) {
+                        cardsWithVisibleItems.add(card);
+                    }
                 }
+            });
+            
+            // Then hide/show cards based on whether they have visible items
+            document.querySelectorAll('#search-results .card').forEach(card => {
+                card.style.display = cardsWithVisibleItems.has(card) ? 'block' : 'none';
             });
         });
         
@@ -337,8 +363,15 @@ const UI = {
         document.getElementById('clear-filter')?.addEventListener('click', () => {
             if (resultFilter) {
                 resultFilter.value = '';
+                
+                // Show all items
                 document.querySelectorAll('.search-match-item').forEach(item => {
                     item.style.display = 'block';
+                });
+                
+                // Show all cards
+                document.querySelectorAll('#search-results .card').forEach(card => {
+                    card.style.display = 'block';
                 });
             }
         });
@@ -428,5 +461,56 @@ const UI = {
             
             container.appendChild(badge);
         });
+    },
+    
+    /**
+     * Display version in the main content area
+     * @param {string} version - Version file name
+     * @param {string} content - Content to display
+     */
+    displayVersion: function(version, content) {
+        const contentDisplay = document.getElementById('content-display');
+        const searchResults = document.getElementById('search-results');
+        
+        if (contentDisplay && searchResults) {
+            const html = Render.renderMarkdown(content);
+            contentDisplay.innerHTML = html;
+            contentDisplay.style.display = 'block';
+            searchResults.style.display = 'none';
+            
+            // Update title
+            const parsedVersion = Utils.parseVersion(version);
+            document.getElementById('current-file').textContent = `Version ${parsedVersion.displayName}`;
+            
+            // Show search-in-current-version checkbox
+            this.updateSearchInCurrentVersionOption(true);
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+    },
+    
+    /**
+     * Update the visibility of the search in current version option
+     * @param {boolean} isVersionActive - Whether a specific version is being viewed
+     */
+    updateSearchInCurrentVersionOption: function(isVersionActive) {
+        const searchCurrentVersionCheckbox = document.getElementById('search-current-version');
+        if (!searchCurrentVersionCheckbox) return;
+        
+        const searchCurrentVersionLabel = searchCurrentVersionCheckbox.parentElement;
+        
+        if (searchCurrentVersionLabel) {
+            if (isVersionActive) {
+                searchCurrentVersionLabel.classList.remove('d-none');
+                // If we're viewing a version, always show the search-current-version option
+                if (document.getElementById('content-display').style.display === 'block') {
+                    searchCurrentVersionCheckbox.checked = true;
+                }
+            } else {
+                searchCurrentVersionLabel.classList.add('d-none');
+                searchCurrentVersionCheckbox.checked = false;
+            }
+        }
     }
 }; 

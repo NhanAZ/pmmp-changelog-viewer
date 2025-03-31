@@ -8,68 +8,46 @@ const App = {
     /**
      * Initialize the application
      */
-    init: async function() {
-        try {
-            console.log('Initializing PocketMine-MP Changelog Viewer...');
-            
-            // Initialize modules in order
-            Render.init();
-            
-            try {
-                Storage.init();
-                console.log('Storage initialized successfully');
-            } catch (storageError) {
-                console.error('Error initializing Storage module:', storageError);
-            }
-            
-            try {
-                UI.init();
-                console.log('UI initialized successfully');
-            } catch (uiError) {
-                console.error('Error initializing UI module:', uiError);
-            }
-            
-            // Initialize Search
-            Search.init();
-            
-            // Initialize Versions (loads data)
-            await Versions.init();
-            
-            // Create dummy versions.json if in development
-            this.createDummyVersionsFile();
-            
-            // Check URL parameters for direct loading
-            this.processUrlParameters();
-            
-            // Handle browser back/forward buttons
-            window.addEventListener('popstate', (event) => {
-                // Get current URL parameters when back/forward is pressed
-                const currentParams = Utils.getUrlParams();
-                
-                if (currentParams.search) {
-                    // If URL has search parameter, prioritize displaying search results
-                    document.getElementById('search-input').value = currentParams.search;
-                    Search.performSearch(currentParams.search, false);
-                } else if (currentParams.version) {
-                    // If URL has version parameter, display that version
-                    Versions.loadVersion(currentParams.version, false);
-                } else if (event.state && event.state.search) {
-                    // Fallback to state if URL parameters are missing
-                    document.getElementById('search-input').value = event.state.search;
-                    Search.performSearch(event.state.search, false);
-                } else if (event.state && event.state.version) {
-                    // Fallback to state if URL parameters are missing
-                    Versions.loadVersion(event.state.version, false);
-                } else {
-                    // Default to welcome page
-                    this.renderWelcomePage();
-                }
+    init: function() {
+        console.log('Initializing application...');
+        
+        // Initialize modules
+        UI.init();
+        Search.init();
+        Versions.init();
+        
+        // Hide search-in-current-version option initially
+        UI.updateSearchInCurrentVersionOption(false);
+        
+        // Process URL parameters
+        this.processUrlParameters();
+        
+        // Setup development notice
+        this.setupDevelopmentNotice();
+        
+        console.log('Application initialized');
+    },
+    
+    /**
+     * Setup development notice banner
+     */
+    setupDevelopmentNotice: function() {
+        const noticeBanner = document.getElementById('development-notice');
+        if (!noticeBanner) return;
+        
+        // Check if user has dismissed the notice before
+        const isDismissed = localStorage.getItem('developmentNoticeDismissed');
+        if (isDismissed === 'true') {
+            noticeBanner.style.display = 'none';
+        }
+        
+        // Add event listener to close button
+        const closeButton = noticeBanner.querySelector('.btn-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                // Store in localStorage that user has dismissed the notice
+                localStorage.setItem('developmentNoticeDismissed', 'true');
             });
-            
-            console.log('Initialization complete');
-        } catch (error) {
-            console.error('Error initializing application:', error);
-            alert('Failed to initialize the application. Please try refreshing the page.');
         }
     },
     
@@ -79,17 +57,27 @@ const App = {
     processUrlParameters: function() {
         const params = Utils.getUrlParams();
         
-        // Handle direct search loading (prioritize search over version)
-        if (params.search) {
-            document.getElementById('search-input').value = params.search;
-            Search.performSearch(params.search);
-        }
-        // Handle direct version loading only if there's no search
-        else if (params.version) {
-            Versions.loadVersion(params.version);
+        // If a version is specified in the URL, load it
+        if (params.version) {
+            Versions.loadVersion(params.version, false);
         } else {
-            // Display welcome page instead of automatically loading the last viewed version
-            this.renderWelcomePage();
+            // If no version is specified, check if we have a last viewed version
+            const lastViewedVersion = Storage.getLastViewedVersion();
+            
+            // No need to load the welcome page or any default version
+            // Let the user choose from the version tree
+        }
+        
+        // If a search term is specified in the URL, perform the search
+        if (params.search) {
+            // Set the search input value
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = params.search;
+            }
+            
+            // Perform the search without updating history
+            Search.performSearch(params.search, false);
         }
     },
     

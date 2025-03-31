@@ -2,6 +2,8 @@
 
 A modern, responsive web application for viewing and searching PocketMine-MP changelogs. Built for GitHub Pages.
 
+> **DEVELOPMENT NOTICE:** This project is currently under development and has not been officially released. Features may be incomplete or subject to change.
+
 ## Features
 
 - 📱 Responsive design for desktop and mobile
@@ -21,6 +23,15 @@ A modern, responsive web application for viewing and searching PocketMine-MP cha
 ## Live Demo
 
 Visit [https://nhanaz.github.io/pmmp-changelog-viewer/](https://nhanaz.github.io/pmmp-changelog-viewer/) to see the application in action.
+
+## About This Project
+
+A small contribution from Vietnam 🇻🇳 to make PocketMine-MP changelogs more accessible to the community.
+
+Contributions, suggestions, and feedback are always welcome! Feel free to:
+- Open an issue if you find a bug or have a feature request
+- Submit a pull request to contribute code
+- Star the repository if you find it useful
 
 ## Development
 
