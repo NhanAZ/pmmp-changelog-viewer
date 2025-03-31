@@ -22,7 +22,6 @@ const Versions = {
      */
     init: async function() {
         await this.loadVersions();
-        this.attachEventListeners();
     },
     
     /**
@@ -32,20 +31,23 @@ const Versions = {
         // Group versions by major version
         this.grouped = Utils.groupVersionsByMajor(this.list);
         
-        // Get version sidebar container
-        const versionList = document.getElementById('version-list');
-        if (!versionList) return;
+        // Get version tree container - not version-list but version-tree
+        const versionTree = document.querySelector('.version-tree');
+        if (!versionTree) {
+            console.error('Version tree container not found');
+            return;
+        }
         
-        // Clear existing content
-        // versionList.innerHTML = ''; - Don't clear the entire version list because we need to keep structure
-        
-        // Create version groups
+        // Process each major version group
         Object.keys(this.grouped).sort((a, b) => parseInt(b) - parseInt(a)).forEach(majorVersion => {
             const versions = this.grouped[majorVersion];
             
             // Find the existing sublist for this major version
             const subList = document.getElementById(`version-group-${majorVersion}`);
-            if (!subList) return; // Skip if the container doesn't exist in HTML
+            if (!subList) {
+                console.warn(`Sublist for major version ${majorVersion} not found`);
+                return;
+            }
             
             // Clear existing content in the sublist
             subList.innerHTML = '';
@@ -55,15 +57,18 @@ const Versions = {
                 const listItem = document.createElement('li');
                 listItem.className = 'list-group-item version-item';
                 listItem.dataset.version = version.file;
-                listItem.textContent = version.parsed.displayName;
                 
-                // Add beta/alpha badge if needed
-                if (version.parsed.isAlpha) {
+                // Ensure displayName is accessible - handle the parsed property correctly
+                const displayName = version.parsed ? version.parsed.displayName : version.file.replace('.md', '');
+                listItem.textContent = displayName;
+                
+                // Add beta/alpha badge if needed - handle the parsed property correctly
+                if (version.parsed && version.parsed.isAlpha) {
                     const badge = document.createElement('span');
                     badge.className = 'badge bg-warning text-dark ms-2';
                     badge.textContent = 'Alpha';
                     listItem.appendChild(badge);
-                } else if (version.parsed.isBeta) {
+                } else if (version.parsed && version.parsed.isBeta) {
                     const badge = document.createElement('span');
                     badge.className = 'badge bg-info text-dark ms-2';
                     badge.textContent = 'Beta';
@@ -74,6 +79,7 @@ const Versions = {
             });
         });
         
+        console.log('Version tree displayed, attaching event listeners...');
         // Attach event listeners after updating the DOM
         this.attachEventListeners();
     },
@@ -82,39 +88,76 @@ const Versions = {
      * Attach event listeners for version items
      */
     attachEventListeners: function() {
+        console.log('Attaching version event listeners...');
+        
+        // Remove existing event listeners (to prevent duplicates)
+        const versionItems = document.querySelectorAll('.version-item');
+        console.log(`Found ${versionItems.length} version items`);
+        
         // Version item click event
-        document.querySelectorAll('.version-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const version = item.dataset.version;
+        versionItems.forEach(item => {
+            // Remove existing listeners (clone and replace)
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+            
+            // Add new listener
+            newItem.addEventListener('click', () => {
+                const version = newItem.dataset.version;
+                console.log(`Clicked version: ${version}`);
                 this.loadVersion(version);
             });
         });
         
         // Version group toggle events
         document.querySelectorAll('.version-group-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const groupId = header.dataset.group;
+            // Remove existing listeners (clone and replace)
+            const newHeader = header.cloneNode(true);
+            header.parentNode.replaceChild(newHeader, header);
+            
+            // Add new listener
+            newHeader.addEventListener('click', () => {
+                const groupId = newHeader.dataset.group;
+                console.log(`Toggling group: ${groupId}`);
                 this.toggleVersionGroup(groupId);
             });
         });
         
         // Expand/collapse buttons
-        document.getElementById('expand-all')?.addEventListener('click', () => {
-            this.expandAllGroups();
-        });
-        document.getElementById('collapse-all')?.addEventListener('click', () => {
-            this.collapseAllGroups();
-        });
+        const expandAll = document.getElementById('expand-all');
+        if (expandAll) {
+            expandAll.onclick = () => {
+                console.log('Expanding all groups');
+                this.expandAllGroups();
+            };
+        }
+        
+        const collapseAll = document.getElementById('collapse-all');
+        if (collapseAll) {
+            collapseAll.onclick = () => {
+                console.log('Collapsing all groups');
+                this.collapseAllGroups();
+            };
+        }
         
         // Version filter
-        document.getElementById('version-filter')?.addEventListener('change', event => {
-            this.filterVersionsByMajor(event.target.value);
-        });
+        const versionFilter = document.getElementById('version-filter');
+        if (versionFilter) {
+            versionFilter.onchange = (event) => {
+                console.log(`Filter by major: ${event.target.value}`);
+                this.filterVersionsByMajor(event.target.value);
+            };
+        }
         
         // Version search
-        document.getElementById('version-search')?.addEventListener('input', event => {
-            this.filterVersionsByText(event.target.value);
-        });
+        const versionSearch = document.getElementById('version-search');
+        if (versionSearch) {
+            versionSearch.oninput = (event) => {
+                console.log(`Search version text: ${event.target.value}`);
+                this.filterVersionsByText(event.target.value);
+            };
+        }
+        
+        console.log('All version event listeners attached');
     },
     
     /**
