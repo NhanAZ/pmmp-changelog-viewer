@@ -30,17 +30,17 @@ jobs:
           
       - name: Update changelogs
         run: |
-          # Tạo thư mục changelogs nếu chưa tồn tại
+          # Create changelogs directory if it doesn't exist
           mkdir -p changelogs
           
-          # Sao chép các tệp changelog từ repo PocketMine-MP
+          # Copy changelog files from PocketMine-MP repo
           cp -f /tmp/pmmp/changelogs/*.md changelogs/
           
-          # Tạo danh sách tất cả các tệp changelog và sắp xếp theo thứ tự giảm dần
+          # Create a list of all changelog files and sort them in descending order
           cd changelogs
           CHANGELOG_FILES=$(ls -1 *.md | sort -V -r)
           
-          # Tạo mảng JSON từ danh sách file
+          # Create JSON array from the file list
           JSON_ARRAY="["
           FIRST=true
           for file in $CHANGELOG_FILES; do
@@ -53,11 +53,11 @@ jobs:
           done
           JSON_ARRAY="$JSON_ARRAY]"
           
-          # Tạo JSON object và lưu vào file versions.json
+          # Create JSON object and save to versions.json
           echo "{\"versions\": $JSON_ARRAY}" | json -o json-4 > versions.json
           
-          # Báo cáo kết quả
-          echo "Đã cập nhật $(echo $CHANGELOG_FILES | wc -w) tệp changelog"
+          # Report results
+          echo "Updated $(echo $CHANGELOG_FILES | wc -w) changelog files"
           cd ..
           
       - name: Check for changes
@@ -72,7 +72,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -m "chore: Cập nhật changelog từ repo PocketMine-MP chính thức"
+          git commit -m "chore: Update changelogs from official PocketMine-MP repo"
           
       - name: Push changes
         if: steps.git-check.outputs.changes == 'true'

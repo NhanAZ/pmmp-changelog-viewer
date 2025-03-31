@@ -126,31 +126,31 @@ const Render = {
         }
         
         try {
-            // Trích xuất các phần từ nội dung
+            // Extract sections from content
             const sectionsA = this.extractSections(contentA);
             const sectionsB = this.extractSections(contentB);
             
-            // Xây dựng HTML cho việc so sánh
+            // Build HTML for comparison
             let html = '<div class="diff-container">';
             
-            // So sánh theo từng phần
+            // Compare each section
             const allSections = new Set([...Object.keys(sectionsA), ...Object.keys(sectionsB)]);
             
             for (const section of allSections) {
                 html += `<h4 class="diff-section-title">${section}</h4>`;
                 
                 if (!sectionsA[section]) {
-                    // Phần chỉ có trong B
+                    // Section only in B
                     html += `<div class="diff-section diff-added"><pre>${Utils.escapeHtml(sectionsB[section])}</pre></div>`;
                 } else if (!sectionsB[section]) {
-                    // Phần chỉ có trong A
+                    // Section only in A
                     html += `<div class="diff-section diff-removed"><pre>${Utils.escapeHtml(sectionsA[section])}</pre></div>`;
                 } else {
-                    // Phần có trong cả hai, tính toán diff chi tiết
+                    // Section in both, calculate detailed diff
                     const sectionDiff = Diff.diffLines(sectionsA[section], sectionsB[section]);
                     
                     if (sectionDiff.some(part => part.added || part.removed)) {
-                        // Nếu có sự khác biệt, hiển thị diff
+                        // If there are differences, show diff
                         html += '<div class="diff-section">';
                         sectionDiff.forEach(part => {
                             const value = Utils.escapeHtml(part.value);
@@ -164,7 +164,7 @@ const Render = {
                         });
                         html += '</div>';
                     } else {
-                        // Nếu giống nhau, hiển thị thông báo
+                        // If identical, show message
                         html += '<div class="diff-section diff-unchanged"><p><em>No changes in this section</em></p></div>';
                     }
                 }
@@ -190,29 +190,29 @@ const Render = {
         let currentSection = 'General';
         let currentContent = '';
         
-        // Phân tích nội dung theo từng dòng
+        // Parse content line by line
         const lines = content.split('\n');
         
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             
-            // Kiểm tra xem dòng có phải là tiêu đề section không
+            // Check if the line is a section heading
             if (line.startsWith('##') && !line.startsWith('###')) {
-                // Lưu section hiện tại trước khi chuyển sang section mới
+                // Save current section before moving to a new one
                 if (currentContent.trim()) {
                     sections[currentSection] = currentContent.trim();
                 }
                 
-                // Cập nhật section mới
+                // Update to new section
                 currentSection = line.replace(/^##\s*/, '').trim();
                 currentContent = '';
             } else {
-                // Thêm dòng vào nội dung section hiện tại
+                // Add line to current section content
                 currentContent += line + '\n';
             }
         }
         
-        // Lưu section cuối cùng
+        // Save the last section
         if (currentContent.trim()) {
             sections[currentSection] = currentContent.trim();
         }

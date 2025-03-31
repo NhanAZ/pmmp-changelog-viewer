@@ -20,16 +20,62 @@ const UI = {
     
     /**
      * Show loading indicator
+     * @param {string} status - Optional status message to display
+     * @param {number} progress - Optional progress value (0-100)
      */
-    showLoading: function() {
+    showLoading: function(status, progress) {
+        // Show loading indicator
         document.getElementById('loading-indicator')?.classList.remove('d-none');
+        
+        // Show loading container with progress bar
+        const loadingContainer = document.getElementById('loading-container');
+        if (loadingContainer) {
+            loadingContainer.classList.remove('d-none');
+        }
+        
+        // Update loading status if provided
+        if (status) {
+            const loadingStatus = document.getElementById('loading-status');
+            if (loadingStatus) {
+                loadingStatus.textContent = status;
+            }
+        }
+        
+        // Update progress bar if a value is provided
+        if (progress !== undefined && progress >= 0 && progress <= 100) {
+            const progressBar = document.getElementById('loading-progress-bar');
+            if (progressBar) {
+                progressBar.classList.remove('indeterminate');
+                progressBar.style.width = `${progress}%`;
+            }
+        } else {
+            // Use indeterminate progress bar when no value is provided
+            const progressBar = document.getElementById('loading-progress-bar');
+            if (progressBar) {
+                progressBar.classList.add('indeterminate');
+                progressBar.style.width = '50%';
+            }
+        }
     },
     
     /**
      * Hide loading indicator
      */
     hideLoading: function() {
+        // Hide loading indicator
         document.getElementById('loading-indicator')?.classList.add('d-none');
+        
+        // Hide loading container
+        const loadingContainer = document.getElementById('loading-container');
+        if (loadingContainer) {
+            loadingContainer.classList.add('d-none');
+        }
+        
+        // Reset progress bar
+        const progressBar = document.getElementById('loading-progress-bar');
+        if (progressBar) {
+            progressBar.style.width = '0%';
+        }
     },
     
     /**

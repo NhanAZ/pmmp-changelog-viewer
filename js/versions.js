@@ -21,70 +21,70 @@ const Versions = {
      * @returns {Promise} Promise that resolves when initialization is complete
      */
     init: async function() {
-        await this.loadVersionList();
-        this.setupVersionListUI();
+        await this.loadVersions();
         this.attachEventListeners();
     },
     
     /**
-     * Load the list of available changelog versions
-     * @returns {Promise} Promise that resolves when versions are loaded
+     * Display version tree
      */
-    loadVersionList: async function() {
-        try {
-            // In a real application, this would fetch the list of changelog files
-            // For GitHub Pages static site, we would have to manually maintain this list
-            // or generate it during build time
+    displayVersionTree: function() {
+        // Group versions by major version
+        this.grouped = Utils.groupVersionsByMajor(this.list);
+        
+        // Get version sidebar container
+        const versionList = document.getElementById('version-list');
+        if (!versionList) return;
+        
+        // Clear existing content
+        versionList.innerHTML = '';
+        
+        // Create version groups
+        Object.keys(this.grouped).sort((a, b) => parseInt(b) - parseInt(a)).forEach(majorVersion => {
+            const versions = this.grouped[majorVersion];
             
-            // For now, we'll simulate this by fetching directory contents or using a predefined list
-            // This could be replaced with a fetch call to a generated json file with version listing
+            // Create group container
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'version-group';
             
-            // Simulated example:
-            const response = await fetch('changelogs/versions.json');
-            if (!response.ok) {
-                throw new Error('Failed to load version list');
-            }
+            // Create group header
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'version-group-header';
+            headerDiv.dataset.group = majorVersion;
+            headerDiv.textContent = `PocketMine-MP ${majorVersion}.x`;
             
-            const data = await response.json();
-            this.list = data.versions;
+            // Create version sublist
+            const sublistDiv = document.createElement('div');
+            sublistDiv.className = 'version-sublist';
+            sublistDiv.id = `version-group-${majorVersion}`;
             
-            // Group versions by major version
-            this.grouped = Utils.groupVersionsByMajor(this.list);
-            
-            return this.list;
-        } catch (error) {
-            console.error('Error loading version list:', error);
-            // Fallback to a predefined list or display error
-            UI.showError('Failed to load version list. Please try refreshing the page.');
-            return [];
-        }
-    },
-    
-    /**
-     * Set up the version list UI
-     */
-    setupVersionListUI: function() {
-        CONFIG.versionGroups.forEach(groupId => {
-            const container = document.getElementById(`version-group-${groupId}`);
-            if (!container) return;
-            
-            const versions = this.grouped[groupId] || [];
-            container.innerHTML = '';
-            
+            // Add versions to sublist
             versions.forEach(version => {
-                const item = document.createElement('li');
-                item.className = 'list-group-item version-item';
-                item.dataset.version = version.file;
-                item.textContent = version.parsed.displayName;
+                const versionItem = document.createElement('div');
+                versionItem.className = 'version-item';
+                versionItem.dataset.version = version.file;
+                versionItem.textContent = version.displayName;
                 
-                if (version.parsed.isAlpha) {
-                    item.innerHTML += ' <span class="badge bg-warning text-dark">Alpha</span>';
-                } else if (version.parsed.isBeta) {
-                    item.innerHTML += ' <span class="badge bg-info text-dark">Beta</span>';
+                // Add beta/alpha badge if needed
+                if (version.isAlpha) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-warning text-dark ms-2';
+                    badge.textContent = 'Alpha';
+                    versionItem.appendChild(badge);
+                } else if (version.isBeta) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge bg-info text-dark ms-2';
+                    badge.textContent = 'Beta';
+                    versionItem.appendChild(badge);
                 }
                 
-                container.appendChild(item);
+                sublistDiv.appendChild(versionItem);
             });
+            
+            // Build group
+            groupDiv.appendChild(headerDiv);
+            groupDiv.appendChild(sublistDiv);
+            versionList.appendChild(groupDiv);
         });
     },
     
@@ -128,42 +128,89 @@ const Versions = {
     },
     
     /**
-     * Load and display a specific version
+     * Load available versions from versions.json
+     */
+    loadVersions: async function() {
+        try {
+            UI.showLoading('Loading version list...');
+            
+            // Fetch the versions list
+            const response = await fetch(`${CONFIG.changelogPath}versions.json`);
+            if (!response.ok) throw new Error('Failed to fetch versions list');
+            
+            const data = await response.json();
+            this.list = data.versions;
+            
+            // Create version tree
+            this.displayVersionTree();
+            
+            // Check URL parameters for version
+            const params = Utils.getUrlParams();
+            if (params.version) {
+                this.loadVersion(params.version, false);
+            } else {
+                // Hide loading indicator
+                UI.hideLoading();
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error loading versions:', error);
+            UI.showError('Failed to load version list. Please reload the page or check your connection.');
+            UI.hideLoading();
+            return false;
+        }
+    },
+    
+    /**
+     * Load a specific version
      * @param {string} version - Version file name
-     * @param {boolean} updateHistory - Whether to update browser history (default: true)
-     * @returns {Promise} Promise that resolves when version is loaded
+     * @param {boolean} updateHistory - Whether to update browser history
      */
     loadVersion: async function(version, updateHistory = true) {
         try {
-            UI.showLoading();
+            if (!version) return;
             
-            // Check cache first
+            // Show loading indicator
+            UI.showLoading(`Loading version ${version.replace('.md', '')}...`);
+            
+            // Check if already in cache
             if (this.cache[version]) {
                 this.displayVersion(version, this.cache[version], updateHistory);
+                UI.hideLoading();
                 return;
             }
             
+            // Fetch the content
             const response = await fetch(`${CONFIG.changelogPath}${version}`);
-            if (!response.ok) {
-                throw new Error(`Failed to load version ${version}`);
-            }
+            if (!response.ok) throw new Error(`Failed to fetch ${version}`);
+            
+            // Start with progress at 50% for download completion
+            UI.showLoading('Processing content...', 50);
             
             const content = await response.text();
-            
-            // Cache the content
             this.cache[version] = content;
             
-            // Display the version
+            // Update loading status for rendering phase
+            UI.showLoading('Rendering content...', 90);
+            
+            // Display the content
             this.displayVersion(version, content, updateHistory);
             
-            // Save as last viewed version
+            // Update URL if needed
+            if (updateHistory) {
+                const newUrl = Utils.createUrlWithParams({ version });
+                window.history.pushState({ version }, '', newUrl);
+            }
+            
+            // Save to local storage as last viewed version
             Storage.saveLastVersion(version);
             
-            return content;
+            // Hide loading indicator
+            UI.hideLoading();
         } catch (error) {
-            console.error(`Error loading version ${version}:`, error);
-            UI.showError(`Failed to load version ${version}. Please try again.`);
-        } finally {
+            console.error('Error loading version:', error);
+            UI.showError(`Failed to load version ${version}. Please try again later.`);
             UI.hideLoading();
         }
     },

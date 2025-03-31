@@ -157,7 +157,7 @@ const Search = {
         try {
             this.isSearching = true;
             this.currentTerm = term;
-            UI.showLoading();
+            UI.showLoading(`Preparing to search for "${term}"...`);
             
             // Save to search history
             Storage.addSearchTerm(term);
@@ -175,7 +175,15 @@ const Search = {
             const caseSensitive = document.getElementById('filter-case-sensitive')?.checked || false;
             
             // Search each version
+            const totalVersions = versionsToSearch.length;
+            let processedVersions = 0;
+            
             for (const version of versionsToSearch) {
+                // Update loading status and progress
+                processedVersions++;
+                const progress = Math.round((processedVersions / totalVersions) * 100);
+                UI.showLoading(`Searching ${version} (${processedVersions}/${totalVersions})...`, progress);
+                
                 // Load the content if not in cache
                 let content = Versions.cache[version];
                 
@@ -205,6 +213,9 @@ const Search = {
                     });
                 }
             }
+            
+            // Update loading status
+            UI.showLoading('Processing search results...', 100);
             
             // Display results
             this.displayResults();

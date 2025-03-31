@@ -399,4 +399,77 @@ body {
     overflow-x: auto;
     white-space: pre-wrap;
     word-break: break-word;
+}
+
+/* Progressbar và loading styles */
+.progress-container {
+    width: 100%;
+    background-color: var(--border-color);
+    border-radius: 4px;
+    margin: 10px 0;
+    overflow: hidden;
+    height: 6px;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    position: relative;
+}
+
+.progress-bar.animated {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+.progress-bar.indeterminate {
+    width: 50% !important;
+    animation: indeterminate-progress 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-bar-stripes {
+    from {
+        background-position: 1rem 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+@keyframes indeterminate-progress {
+    0% {
+        left: -50%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+#loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+#loading-status {
+    font-size: 0.9rem;
+    color: var(--muted-color);
+    margin-top: 5px;
+    text-align: center;
 } 
