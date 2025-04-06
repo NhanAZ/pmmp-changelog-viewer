@@ -563,11 +563,50 @@ footer .list-unstyled li {
     visibility: visible;
 }
 
+/* Back to bottom button */
+.btn-back-to-bottom {
+    position: fixed;
+    bottom: 20px;
+    right: 70px; /* Position it to the left of the back-to-top button */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    outline: none;
+}
+
+.btn-back-to-bottom:hover, .btn-back-to-bottom:focus {
+    background-color: var(--primary-hover);
+    transform: translateY(3px);
+}
+
+.btn-back-to-bottom.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
 @media (max-width: 768px) {
-    .btn-back-to-top {
-        bottom: 15px;
-        right: 15px;
+    .btn-back-to-top, .btn-back-to-bottom {
         width: 35px;
         height: 35px;
+        bottom: 15px;
+    }
+    
+    .btn-back-to-top {
+        right: 15px;
+    }
+    
+    .btn-back-to-bottom {
+        right: 60px;
     }
 } 

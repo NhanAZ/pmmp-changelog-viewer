@@ -294,8 +294,8 @@ const Versions = {
             window.history.pushState({ version, searchTerm }, '', newUrl);
         }
         
-        // Check if back-to-top button should be shown
-        setTimeout(() => UI.toggleBackToTopButton(), 100);
+        // Check if navigation buttons should be shown
+        setTimeout(() => UI.toggleScrollButtons(), 100);
     },
     
     /**

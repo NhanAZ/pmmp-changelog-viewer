@@ -28,13 +28,7 @@ const Search = {
         document.getElementById('search-button')?.addEventListener('click', () => {
             const term = document.getElementById('search-input')?.value?.trim();
             if (term) {
-                // Check if we should auto-enable current version search
-                if (Versions.current) {
-                    const searchCurrentVersionCheckbox = document.getElementById('search-current-version');
-                    if (searchCurrentVersionCheckbox) {
-                        searchCurrentVersionCheckbox.checked = true;
-                    }
-                }
+                // Removed auto-checking to respect user's choice
                 this.performSearch(term);
             }
         });
@@ -43,13 +37,7 @@ const Search = {
             if (e.key === 'Enter') {
                 const term = e.target.value.trim();
                 if (term) {
-                    // Check if we should auto-enable current version search
-                    if (Versions.current) {
-                        const searchCurrentVersionCheckbox = document.getElementById('search-current-version');
-                        if (searchCurrentVersionCheckbox) {
-                            searchCurrentVersionCheckbox.checked = true;
-                        }
-                    }
+                    // Removed auto-checking to respect user's choice  
                     this.performSearch(term);
                 }
             }
@@ -177,12 +165,16 @@ const Search = {
             // Check if the user is currently viewing a specific version
             if (!currentVersionOnly) {
                 const currentVersion = Versions.current;
-                const searchInCurrentVersion = document.getElementById('search-current-version')?.checked || false;
+                const searchCurrentVersionCheckbox = document.getElementById('search-current-version');
+                const searchInCurrentVersion = searchCurrentVersionCheckbox?.checked || false;
                 
                 // If a version is being viewed and the checkbox is checked, search only that version
                 if (currentVersion && searchInCurrentVersion) {
                     currentVersionOnly = true;
                 }
+                
+                // IMPORTANT: Don't auto-check the checkbox if it was explicitly unchecked by the user
+                // This prevents the checkbox from being automatically re-checked
             }
             
             // Special case: If we're viewing a version and the search-in-current-version is checked,
@@ -211,7 +203,7 @@ const Search = {
             if (currentVersionOnly) {
                 UI.showLoading(`Searching for "${term}" in current version only...`);
             } else {
-                UI.showLoading(`Preparing to search for "${term}" across all versions...`);
+                UI.showLoading(`Searching for "${term}" across all versions...`);
             }
             
             // Save to search history

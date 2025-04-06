@@ -10,6 +10,10 @@ const UI = {
     init: function() {
         this.attachEventListeners();
         this.createBackToTopButton();
+        
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
     },
     
     /**
@@ -22,6 +26,11 @@ const UI = {
         window.addEventListener('scroll', () => {
             this.toggleBackToTopButton();
         });
+        
+        // Handle scroll events for navigation buttons
+        window.addEventListener('scroll', () => {
+            this.toggleScrollButtons();
+        });
     },
     
     /**
@@ -30,14 +39,14 @@ const UI = {
     createBackToTopButton: function() {
         // Create back to top button if it doesn't exist
         if (!document.getElementById('back-to-top')) {
-            const button = document.createElement('button');
-            button.id = 'back-to-top';
-            button.className = 'btn btn-back-to-top';
-            button.innerHTML = '<i class="bi bi-arrow-up"></i>';
-            button.title = 'Back to top';
+            const buttonTop = document.createElement('button');
+            buttonTop.id = 'back-to-top';
+            buttonTop.className = 'btn btn-back-to-top';
+            buttonTop.innerHTML = '<i class="bi bi-arrow-up"></i>';
+            buttonTop.title = 'Back to top';
             
             // Add click event listener
-            button.addEventListener('click', () => {
+            buttonTop.addEventListener('click', () => {
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
@@ -45,21 +54,42 @@ const UI = {
             });
             
             // Add to the document
-            document.body.appendChild(button);
-            
-            // Initialize visibility
-            this.toggleBackToTopButton();
+            document.body.appendChild(buttonTop);
         }
+        
+        // Create back to bottom button if it doesn't exist
+        if (!document.getElementById('back-to-bottom')) {
+            const buttonBottom = document.createElement('button');
+            buttonBottom.id = 'back-to-bottom';
+            buttonBottom.className = 'btn btn-back-to-bottom';
+            buttonBottom.innerHTML = '<i class="bi bi-arrow-down"></i>';
+            buttonBottom.title = 'Go to bottom';
+            
+            // Add click event listener
+            buttonBottom.addEventListener('click', () => {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Add to the document
+            document.body.appendChild(buttonBottom);
+        }
+        
+        // Initialize visibility
+        this.toggleScrollButtons();
     },
     
     /**
-     * Toggle the visibility of the back to top button based on scroll position
+     * Toggle the visibility of navigation buttons based on scroll position
      */
-    toggleBackToTopButton: function() {
-        const button = document.getElementById('back-to-top');
-        if (!button) return;
+    toggleScrollButtons: function() {
+        const buttonTop = document.getElementById('back-to-top');
+        const buttonBottom = document.getElementById('back-to-bottom');
+        if (!buttonTop || !buttonBottom) return;
         
-        // Get the document height
+        // Get document measurements
         const documentHeight = Math.max(
             document.body.scrollHeight,
             document.body.offsetHeight,
@@ -68,16 +98,38 @@ const UI = {
             document.documentElement.offsetHeight
         );
         
-        // Get the viewport height
+        // Get viewport height and scroll position
         const viewportHeight = window.innerHeight;
+        const scrollPosition = window.scrollY;
         
-        // Only show the button if:
-        // 1. Document is significently taller than viewport (>= 2x)
-        // 2. User has scrolled down significantly (>300px)
-        if (documentHeight > viewportHeight * 1.5 && window.scrollY > 300) {
-            button.classList.add('visible');
-        } else {
-            button.classList.remove('visible');
+        // Minimum height to show any buttons (1.5x viewport height)
+        const minHeightForButtons = viewportHeight * 1.5;
+        
+        // Only process if document is tall enough
+        if (documentHeight < minHeightForButtons) {
+            buttonTop.classList.remove('visible');
+            buttonBottom.classList.remove('visible');
+            return;
+        }
+        
+        // Threshold positions (as percentage of scrollable area)
+        const topThreshold = 300; // 300px from top
+        const bottomThreshold = documentHeight - viewportHeight - 300; // 300px from bottom
+        
+        // At top of page: hide top button, show bottom button
+        if (scrollPosition < topThreshold) {
+            buttonTop.classList.remove('visible');
+            buttonBottom.classList.add('visible');
+        } 
+        // At bottom of page: show top button, hide bottom button
+        else if (scrollPosition > bottomThreshold) {
+            buttonTop.classList.add('visible');
+            buttonBottom.classList.remove('visible');
+        } 
+        // In middle of page: show both buttons
+        else {
+            buttonTop.classList.add('visible');
+            buttonBottom.classList.add('visible');
         }
     },
     
@@ -207,8 +259,8 @@ const UI = {
                 </div>
             `;
             
-            // Check if back-to-top button should be shown
-            setTimeout(() => this.toggleBackToTopButton(), 100);
+            // Check if navigation buttons should be shown
+            setTimeout(() => this.toggleScrollButtons(), 300);
             
             return;
         }
@@ -455,8 +507,8 @@ const UI = {
         // Scroll to top
         window.scrollTo(0, 0);
         
-        // Check if back-to-top button should be shown
-        setTimeout(() => this.toggleBackToTopButton(), 300);
+        // Check if navigation buttons should be shown
+        setTimeout(() => this.toggleScrollButtons(), 300);
     },
     
     /**
@@ -774,8 +826,8 @@ const UI = {
                 window.scrollTo(0, 0);
             }
             
-            // Check if back-to-top button should be shown 
-            setTimeout(() => this.toggleBackToTopButton(), 300);
+            // Check if navigation buttons should be shown 
+            setTimeout(() => this.toggleScrollButtons(), 300);
         }
     },
     
@@ -790,13 +842,8 @@ const UI = {
         // Always keep the checkbox visible but only enable it when viewing a version
         searchCurrentVersionCheckbox.disabled = !isVersionActive;
         
-        // If we're viewing a version, ensure the checkbox is checked by default
-        if (isVersionActive) {
-            // Only check if not previously unchecked by user
-            if (document.getElementById('content-display').style.display === 'block') {
-                searchCurrentVersionCheckbox.checked = true;
-            }
-        }
+        // No longer auto-check the checkbox when viewing a version
+        // Let the user decide whether to use this feature
     },
     
     /**
