@@ -185,6 +185,28 @@ const Search = {
                 }
             }
             
+            // Special case: If we're viewing a version and the search-in-current-version is checked,
+            // we'll just highlight the search term instead of showing search results
+            if (currentVersionOnly && Versions.current) {
+                // Load the version with the search term highlighted
+                if (updateHistory) {
+                    // Update URL with the version and highlight parameter
+                    const params = {
+                        version: Versions.current,
+                        highlight: term
+                    };
+                    const newUrl = Utils.createUrlWithParams(params);
+                    window.history.pushState(params, '', newUrl);
+                }
+                
+                // Just highlight the search term in the current version content
+                Versions.highlightSearchTerm(term);
+                
+                // No need to continue with the search
+                this.isSearching = false;
+                return;
+            }
+            
             // Update loading text based on search scope
             if (currentVersionOnly) {
                 UI.showLoading(`Searching for "${term}" in current version only...`);

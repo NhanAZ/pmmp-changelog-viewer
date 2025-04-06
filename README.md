@@ -28,6 +28,8 @@ Visit [https://nhanaz.github.io/pmmp-changelog-viewer/](https://nhanaz.github.io
 
 A small contribution from Vietnam 🇻🇳 to make PocketMine-MP changelogs more accessible to the community.
 
+Powered by AI tools, including Claude by Anthropic.
+
 Contributions, suggestions, and feedback are always welcome! Feel free to:
 - Open an issue if you find a bug or have a feature request
 - Submit a pull request to contribute code

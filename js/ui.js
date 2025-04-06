@@ -9,6 +9,7 @@ const UI = {
      */
     init: function() {
         this.attachEventListeners();
+        this.createBackToTopButton();
     },
     
     /**
@@ -16,6 +17,68 @@ const UI = {
      */
     attachEventListeners: function() {
         // Event listeners go here
+        
+        // Handle scroll events for back-to-top button
+        window.addEventListener('scroll', () => {
+            this.toggleBackToTopButton();
+        });
+    },
+    
+    /**
+     * Create the back to top button
+     */
+    createBackToTopButton: function() {
+        // Create back to top button if it doesn't exist
+        if (!document.getElementById('back-to-top')) {
+            const button = document.createElement('button');
+            button.id = 'back-to-top';
+            button.className = 'btn btn-back-to-top';
+            button.innerHTML = '<i class="bi bi-arrow-up"></i>';
+            button.title = 'Back to top';
+            
+            // Add click event listener
+            button.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Add to the document
+            document.body.appendChild(button);
+            
+            // Initialize visibility
+            this.toggleBackToTopButton();
+        }
+    },
+    
+    /**
+     * Toggle the visibility of the back to top button based on scroll position
+     */
+    toggleBackToTopButton: function() {
+        const button = document.getElementById('back-to-top');
+        if (!button) return;
+        
+        // Get the document height
+        const documentHeight = Math.max(
+            document.body.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.clientHeight,
+            document.documentElement.scrollHeight,
+            document.documentElement.offsetHeight
+        );
+        
+        // Get the viewport height
+        const viewportHeight = window.innerHeight;
+        
+        // Only show the button if:
+        // 1. Document is significently taller than viewport (>= 2x)
+        // 2. User has scrolled down significantly (>300px)
+        if (documentHeight > viewportHeight * 1.5 && window.scrollY > 300) {
+            button.classList.add('visible');
+        } else {
+            button.classList.remove('visible');
+        }
     },
     
     /**
@@ -143,6 +206,10 @@ const UI = {
                     <i class="bi bi-search"></i> No results found for "${searchTerm}"
                 </div>
             `;
+            
+            // Check if back-to-top button should be shown
+            setTimeout(() => this.toggleBackToTopButton(), 100);
+            
             return;
         }
         
@@ -387,6 +454,9 @@ const UI = {
         
         // Scroll to top
         window.scrollTo(0, 0);
+        
+        // Check if back-to-top button should be shown
+        setTimeout(() => this.toggleBackToTopButton(), 300);
     },
     
     /**
@@ -702,6 +772,9 @@ const UI = {
             if (!searchTerm) {
                 window.scrollTo(0, 0);
             }
+            
+            // Check if back-to-top button should be shown 
+            setTimeout(() => this.toggleBackToTopButton(), 300);
         }
     },
     
@@ -713,19 +786,96 @@ const UI = {
         const searchCurrentVersionCheckbox = document.getElementById('search-current-version');
         if (!searchCurrentVersionCheckbox) return;
         
-        const searchCurrentVersionLabel = searchCurrentVersionCheckbox.parentElement;
+        // Always keep the checkbox visible but only enable it when viewing a version
+        searchCurrentVersionCheckbox.disabled = !isVersionActive;
         
-        if (searchCurrentVersionLabel) {
-            if (isVersionActive) {
-                searchCurrentVersionLabel.classList.remove('d-none');
-                // If we're viewing a version, always show the search-current-version option
-                if (document.getElementById('content-display').style.display === 'block') {
-                    searchCurrentVersionCheckbox.checked = true;
-                }
-            } else {
-                searchCurrentVersionLabel.classList.add('d-none');
-                searchCurrentVersionCheckbox.checked = false;
+        // If we're viewing a version, ensure the checkbox is checked by default
+        if (isVersionActive) {
+            // Only check if not previously unchecked by user
+            if (document.getElementById('content-display').style.display === 'block') {
+                searchCurrentVersionCheckbox.checked = true;
             }
         }
+    },
+    
+    /**
+     * Show a temporary notification 
+     * @param {string} message - Message to show
+     * @param {string} type - Notification type (success, info, warning, danger)
+     * @param {number} duration - Duration in milliseconds (default: 3000ms)
+     */
+    showNotification: function(message, type = 'info', duration = 3000) {
+        // Get or create notification container
+        let container = document.getElementById('notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notification-container';
+            container.style.position = 'fixed';
+            container.style.top = '10px';
+            container.style.left = '50%';
+            container.style.transform = 'translateX(-50%)';
+            container.style.zIndex = '9999';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'center';
+            container.style.gap = '10px';
+            document.body.appendChild(container);
+        }
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} notification`;
+        notification.role = 'alert';
+        notification.textContent = message;
+        notification.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+        notification.style.minWidth = '250px';
+        notification.style.animation = 'fadeIn 0.3s';
+        
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.className = 'btn-close';
+        closeBtn.setAttribute('data-bs-dismiss', 'alert');
+        closeBtn.setAttribute('aria-label', 'Close');
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.right = '10px';
+        closeBtn.style.top = '50%';
+        closeBtn.style.transform = 'translateY(-50%)';
+        closeBtn.onclick = () => notification.remove();
+        
+        notification.style.position = 'relative';
+        notification.style.paddingRight = '35px';
+        notification.appendChild(closeBtn);
+        
+        // Add to container
+        container.appendChild(notification);
+        
+        // Add CSS for animation if not already present
+        if (!document.getElementById('notification-style')) {
+            const style = document.createElement('style');
+            style.id = 'notification-style';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: translateY(0); }
+                    to { opacity: 0; transform: translateY(-10px); }
+                }
+                .notification.fade-out {
+                    animation: fadeOut 0.3s forwards;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Auto-remove after duration
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 300);
+        }, duration);
+        
+        return notification;
     }
 }; 

@@ -292,6 +292,9 @@ const Versions = {
             const newUrl = Utils.createUrlWithParams(params);
             window.history.pushState({ version, searchTerm }, '', newUrl);
         }
+        
+        // Check if back-to-top button should be shown
+        setTimeout(() => UI.toggleBackToTopButton(), 100);
     },
     
     /**
@@ -363,5 +366,31 @@ const Versions = {
             const versionText = item.textContent.toLowerCase();
             item.style.display = searchText === '' || versionText.includes(searchText) ? '' : 'none';
         });
+    },
+    
+    /**
+     * Highlight search term in the current version content
+     * @param {string} searchTerm - Term to highlight
+     */
+    highlightSearchTerm: function(searchTerm) {
+        if (!this.current || !searchTerm) return;
+        
+        // Get the current content from cache
+        const content = this.cache[this.current];
+        if (!content) return;
+        
+        // Redisplay the version with the highlight parameter
+        UI.displayVersion(this.current, content, searchTerm);
+        
+        // Update URL to include the highlight parameter if not already there
+        const currentParams = Utils.getUrlParams();
+        if (currentParams.highlight !== searchTerm) {
+            const params = { 
+                version: this.current,
+                highlight: searchTerm 
+            };
+            const newUrl = Utils.createUrlWithParams(params);
+            window.history.replaceState(params, '', newUrl);
+        }
     }
 }; 
