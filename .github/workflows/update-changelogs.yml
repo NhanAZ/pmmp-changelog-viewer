@@ -36,6 +36,9 @@ jobs:
         with:
           fetch-depth: 0  # Get full history for merging
       
+      - name: Pull latest changes
+        run: git pull --rebase origin master
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -101,11 +104,6 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
-      - name: Pull latest changes
-        if: steps.git-check.outputs.changes == 'true'
-        run: |
-          git pull --rebase origin master
           
       - name: Commit changes
         if: steps.git-check.outputs.changes == 'true'
