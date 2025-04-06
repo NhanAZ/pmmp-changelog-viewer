@@ -284,7 +284,16 @@ const UI = {
         document.querySelectorAll('.view-version').forEach(button => {
             button.addEventListener('click', () => {
                 const version = button.dataset.version;
-                Versions.loadVersion(version);
+                // Store current search term in URL as a parameter
+                const params = { version: version };
+                
+                // Check if we have a search term to highlight
+                if (searchTerm) {
+                    params.highlight = searchTerm;
+                }
+                
+                // Load version with search term for highlighting
+                Versions.loadVersion(version, true, searchTerm);
             });
         });
         
@@ -467,16 +476,135 @@ const UI = {
      * Display version in the main content area
      * @param {string} version - Version file name
      * @param {string} content - Content to display
+     * @param {string} searchTerm - Optional search term to highlight
      */
-    displayVersion: function(version, content) {
+    displayVersion: function(version, content, searchTerm = null) {
         const contentDisplay = document.getElementById('content-display');
         const searchResults = document.getElementById('search-results');
         
         if (contentDisplay && searchResults) {
-            const html = Render.renderMarkdown(content);
+            let html = Render.renderMarkdown(content);
+            
+            // If search term is provided, highlight it in the version content
+            if (searchTerm) {
+                // Use a unique placeholder for rendered HTML to avoid breaking HTML tags
+                const placeholder = `__HIGHLIGHT_PLACEHOLDER_${Date.now()}__`;
+                const highlightClass = 'highlight-search-term';
+                
+                // Create a temporary div to manipulate the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                
+                // Create a TreeWalker to traverse text nodes
+                const walker = document.createTreeWalker(
+                    tempDiv,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                
+                // Process each text node
+                const nodesToReplace = [];
+                let currentNode;
+                
+                // Collect text nodes to replace
+                while ((currentNode = walker.nextNode())) {
+                    // Skip nodes in pre tags (code blocks) but allow highlighting in inline code
+                    let parent = currentNode.parentNode;
+                    let inPreTag = false;
+                    
+                    while (parent) {
+                        if (parent.nodeName === 'PRE') {
+                            inPreTag = true;
+                            break;
+                        }
+                        parent = parent.parentNode;
+                    }
+                    
+                    if (!inPreTag && currentNode.textContent.length > 0) {
+                        // Case insensitive search
+                        const text = currentNode.textContent;
+                        const searchTermLower = searchTerm.toLowerCase();
+                        const textLower = text.toLowerCase();
+                        let position = textLower.indexOf(searchTermLower);
+                        
+                        if (position !== -1) {
+                            nodesToReplace.push({
+                                node: currentNode,
+                                text: text,
+                                positions: []
+                            });
+                            
+                            // Find all occurrences
+                            while (position !== -1) {
+                                nodesToReplace[nodesToReplace.length - 1].positions.push(position);
+                                position = textLower.indexOf(searchTermLower, position + searchTermLower.length);
+                            }
+                        }
+                    }
+                }
+                
+                // Replace text with highlighted versions
+                for (const item of nodesToReplace) {
+                    const { node, text, positions } = item;
+                    let newHtml = '';
+                    let lastPosition = 0;
+                    
+                    for (const position of positions) {
+                        // Add text before match
+                        newHtml += text.substring(lastPosition, position);
+                        
+                        // Add highlighted match
+                        newHtml += `<span class="${highlightClass}">${text.substring(position, position + searchTerm.length)}</span>`;
+                        
+                        lastPosition = position + searchTerm.length;
+                    }
+                    
+                    // Add remaining text
+                    newHtml += text.substring(lastPosition);
+                    
+                    // Create container for the new HTML
+                    const container = document.createElement('span');
+                    container.innerHTML = newHtml;
+                    
+                    // Replace the original node with the new container
+                    node.parentNode.replaceChild(container, node);
+                }
+                
+                // Get the modified HTML
+                html = tempDiv.innerHTML;
+            }
+            
             contentDisplay.innerHTML = html;
             contentDisplay.style.display = 'block';
             searchResults.style.display = 'none';
+            
+            // If search term is provided, add CSS for highlighting
+            if (searchTerm) {
+                // Ensure the highlight style is added
+                if (!document.getElementById('highlight-search-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'highlight-search-style';
+                    style.textContent = `
+                        .highlight-search-term {
+                            background-color: #ffeb3b;
+                            color: #000;
+                            padding: 0 2px;
+                            border-radius: 2px;
+                            font-weight: bold;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                // Wait a bit and scroll to the first highlighted occurrence
+                setTimeout(() => {
+                    const firstHighlight = contentDisplay.querySelector('.highlight-search-term');
+                    if (firstHighlight) {
+                        firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            }
             
             // Update title
             const parsedVersion = Utils.parseVersion(version);
@@ -485,8 +613,10 @@ const UI = {
             // Show search-in-current-version checkbox
             this.updateSearchInCurrentVersionOption(true);
             
-            // Scroll to top
-            window.scrollTo(0, 0);
+            // Scroll to top if no search term
+            if (!searchTerm) {
+                window.scrollTo(0, 0);
+            }
         }
     },
     

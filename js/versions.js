@@ -199,8 +199,9 @@ const Versions = {
      * Load a specific version
      * @param {string} version - Version file name
      * @param {boolean} updateHistory - Whether to update browser history
+     * @param {string} searchTerm - Optional search term to highlight
      */
-    loadVersion: async function(version, updateHistory = true) {
+    loadVersion: async function(version, updateHistory = true, searchTerm = null) {
         try {
             if (!version) return;
             
@@ -209,7 +210,7 @@ const Versions = {
             
             // Check if already in cache
             if (this.cache[version]) {
-                this.displayVersion(version, this.cache[version], updateHistory);
+                this.displayVersion(version, this.cache[version], updateHistory, searchTerm);
                 UI.hideLoading();
                 return;
             }
@@ -227,13 +228,18 @@ const Versions = {
             // Update loading status for rendering phase
             UI.showLoading('Rendering content...', 90);
             
-            // Display the content
-            this.displayVersion(version, content, updateHistory);
+            // Display the content with search term if provided
+            this.displayVersion(version, content, updateHistory, searchTerm);
             
             // Update URL if needed
             if (updateHistory) {
-                const newUrl = Utils.createUrlWithParams({ version });
-                window.history.pushState({ version }, '', newUrl);
+                const params = { version };
+                // Include search term in URL if provided
+                if (searchTerm) {
+                    params.highlight = searchTerm;
+                }
+                const newUrl = Utils.createUrlWithParams(params);
+                window.history.pushState({ version, searchTerm }, '', newUrl);
             }
             
             // Save to local storage as last viewed version
@@ -253,8 +259,9 @@ const Versions = {
      * @param {string} version - Version file name
      * @param {string} content - Markdown content
      * @param {boolean} updateHistory - Whether to update browser history (default: true)
+     * @param {string} searchTerm - Optional search term to highlight
      */
-    displayVersion: function(version, content, updateHistory = true) {
+    displayVersion: function(version, content, updateHistory = true, searchTerm = null) {
         // Update current version
         this.current = version;
         
@@ -264,8 +271,8 @@ const Versions = {
             searchResults.style.display = 'none';
         }
         
-        // Render content using UI module
-        UI.displayVersion(version, content);
+        // Render content using UI module with search term highlighting if provided
+        UI.displayVersion(version, content, searchTerm);
         
         // Update UI elements
         document.querySelectorAll('.version-item').forEach(item => {
@@ -277,8 +284,13 @@ const Versions = {
         
         // Update URL for sharing and add to browser history if needed
         if (updateHistory) {
-            const newUrl = Utils.createUrlWithParams({ version });
-            window.history.pushState({ version }, '', newUrl);
+            const params = { version };
+            // Include search term in URL if provided
+            if (searchTerm) {
+                params.highlight = searchTerm;
+            }
+            const newUrl = Utils.createUrlWithParams(params);
+            window.history.pushState({ version, searchTerm }, '', newUrl);
         }
     },
     

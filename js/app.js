@@ -74,7 +74,9 @@ const App = {
             
             // Handle version parameter
             if (params.version) {
-                Versions.loadVersion(params.version, false);
+                // Pass highlight term if present
+                const highlightTerm = params.highlight || null;
+                Versions.loadVersion(params.version, false, highlightTerm);
             } else if (params.search) {
                 // If there's no version but there is a search, clear the version display
                 document.getElementById('content-display').style.display = 'none';
@@ -122,7 +124,9 @@ const App = {
         
         // If a version is specified in the URL, load it
         if (params.version) {
-            Versions.loadVersion(params.version, false);
+            // Check if there's also a highlight parameter
+            const highlightTerm = params.highlight || null;
+            Versions.loadVersion(params.version, false, highlightTerm);
         } else {
             // If no version is specified, check if we have a last viewed version
             try {
