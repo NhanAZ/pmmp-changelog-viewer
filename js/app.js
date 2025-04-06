@@ -1,12 +1,12 @@
 /**
  * Application Entry Point
  * Initializes all modules and starts the application
- * @version 1.0.2
+ * @version 1.0.3
  */
 
 // Main App
 const App = {
-    version: '1.0.2',
+    version: '1.0.3',
     /**
      * Initialize the application
      */
@@ -33,6 +33,9 @@ const App = {
         // Setup development notice
         this.setupDevelopmentNotice();
         
+        // Add browser history navigation handler
+        this.setupHistoryNavigation();
+        
         console.log('Application initialized');
     },
     
@@ -57,6 +60,58 @@ const App = {
                 localStorage.setItem('developmentNoticeDismissed', 'true');
             });
         }
+    },
+    
+    /**
+     * Setup handler for browser history navigation (back/forward buttons)
+     */
+    setupHistoryNavigation: function() {
+        window.addEventListener('popstate', (event) => {
+            console.log('Navigation state changed', event.state);
+            
+            // Get current URL parameters
+            const params = Utils.getUrlParams();
+            
+            // Handle version parameter
+            if (params.version) {
+                Versions.loadVersion(params.version, false);
+            } else if (params.search) {
+                // If there's no version but there is a search, clear the version display
+                document.getElementById('content-display').style.display = 'none';
+                document.getElementById('current-file').textContent = 'Search Results';
+            } else {
+                // Neither version nor search, show welcome
+                this.renderWelcomePage();
+            }
+            
+            // Handle search parameter
+            if (params.search) {
+                // Update search input field
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.value = params.search;
+                }
+                
+                // Perform the search without updating history
+                try {
+                    Search.performSearch(params.search, false);
+                } catch (error) {
+                    console.error('Error performing search during navigation:', error);
+                }
+            } else {
+                // Clear search results if no search param
+                const searchResults = document.getElementById('search-results');
+                if (searchResults) {
+                    searchResults.style.display = 'none';
+                }
+                
+                // Clear search input
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+            }
+        });
     },
     
     /**
