@@ -547,8 +547,9 @@ const UI = {
      * @param {string} version - Version file name
      * @param {string} content - Content to display
      * @param {string} searchTerm - Optional search term to highlight
+     * @param {boolean} updateHistory - Whether to update browser history (default: false)
      */
-    displayVersion: function(version, content, searchTerm = null) {
+    displayVersion: function(version, content, searchTerm = null, updateHistory = false) {
         const contentDisplay = document.getElementById('content-display');
         const searchResults = document.getElementById('search-results');
         

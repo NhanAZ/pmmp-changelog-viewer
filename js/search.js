@@ -188,9 +188,8 @@ const Search = {
             // Special case: If we're viewing a version and the search-in-current-version is checked,
             // we'll just highlight the search term instead of showing search results
             if (currentVersionOnly && Versions.current) {
-                // Load the version with the search term highlighted
                 if (updateHistory) {
-                    // Update URL with the version and highlight parameter
+                    // Add just one history entry with both parameters
                     const params = {
                         version: Versions.current,
                         highlight: term
@@ -200,7 +199,8 @@ const Search = {
                 }
                 
                 // Just highlight the search term in the current version content
-                Versions.highlightSearchTerm(term);
+                // Pass false to prevent highlightSearchTerm from adding another history entry
+                Versions.highlightSearchTerm(term, false);
                 
                 // No need to continue with the search
                 this.isSearching = false;

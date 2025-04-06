@@ -272,7 +272,8 @@ const Versions = {
         }
         
         // Render content using UI module with search term highlighting if provided
-        UI.displayVersion(version, content, searchTerm);
+        // Don't update history here - we'll do it separately if needed
+        UI.displayVersion(version, content, searchTerm, false);
         
         // Update UI elements
         document.querySelectorAll('.version-item').forEach(item => {
@@ -371,8 +372,9 @@ const Versions = {
     /**
      * Highlight search term in the current version content
      * @param {string} searchTerm - Term to highlight
+     * @param {boolean} updateHistory - Whether to update browser history (default: true)
      */
-    highlightSearchTerm: function(searchTerm) {
+    highlightSearchTerm: function(searchTerm, updateHistory = true) {
         if (!this.current || !searchTerm) return;
         
         // Get the current content from cache
@@ -392,14 +394,16 @@ const Versions = {
         }, 300);
         
         // Update URL to include the highlight parameter if not already there
-        const currentParams = Utils.getUrlParams();
-        if (currentParams.highlight !== searchTerm) {
-            const params = { 
-                version: this.current,
-                highlight: searchTerm 
-            };
-            const newUrl = Utils.createUrlWithParams(params);
-            window.history.replaceState(params, '', newUrl);
+        if (updateHistory) {
+            const currentParams = Utils.getUrlParams();
+            if (currentParams.highlight !== searchTerm) {
+                const params = { 
+                    version: this.current,
+                    highlight: searchTerm 
+                };
+                const newUrl = Utils.createUrlWithParams(params);
+                window.history.pushState(params, '', newUrl);
+            }
         }
     }
 }; 

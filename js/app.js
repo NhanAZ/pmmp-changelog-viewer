@@ -78,22 +78,30 @@ const App = {
             // Get current URL parameters
             const params = Utils.getUrlParams();
             
+            // First, clear any currently showing results or version content
+            // This ensures we don't have conflicts between UI states
+            const contentDisplay = document.getElementById('content-display');
+            const searchResults = document.getElementById('search-results');
+            if (contentDisplay) contentDisplay.style.display = 'none';
+            if (searchResults) searchResults.style.display = 'none';
+            
+            // Remove any existing results navigator
+            const resultsNavigator = document.querySelector('.results-navigator');
+            if (resultsNavigator) resultsNavigator.remove();
+            
             // Handle version parameter
             if (params.version) {
                 // Pass highlight term if present
                 const highlightTerm = params.highlight || null;
                 Versions.loadVersion(params.version, false, highlightTerm);
             } else if (params.search) {
-                // If there's no version but there is a search, clear the version display
-                document.getElementById('content-display').style.display = 'none';
+                // If there's no version but there is a search, ensure version content is hidden
+                if (contentDisplay) contentDisplay.style.display = 'none';
+                
+                // Reset current version
+                Versions.current = null;
                 document.getElementById('current-file').textContent = 'Search Results';
-            } else {
-                // Neither version nor search, show welcome
-                this.renderWelcomePage();
-            }
-            
-            // Handle search parameter
-            if (params.search) {
+                
                 // Update search input field
                 const searchInput = document.getElementById('search-input');
                 if (searchInput) {
@@ -107,11 +115,8 @@ const App = {
                     console.error('Error performing search during navigation:', error);
                 }
             } else {
-                // Clear search results if no search param
-                const searchResults = document.getElementById('search-results');
-                if (searchResults) {
-                    searchResults.style.display = 'none';
-                }
+                // Neither version nor search, show welcome
+                this.renderWelcomePage();
                 
                 // Clear search input
                 const searchInput = document.getElementById('search-input');
