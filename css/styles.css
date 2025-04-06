@@ -609,3 +609,37 @@ footer .list-unstyled li {
 		right: 60px;
 	}
 }
+
+/* Statistics Styles */
+#stats-modal .card {
+	box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+#stats-modal .card-header {
+	background-color: rgba(0, 0, 0, 0.03);
+}
+
+#stats-modal canvas {
+	max-height: 300px;
+}
+
+#version-stats-table {
+	width: 100%;
+	margin-bottom: 0;
+}
+
+#version-stats-table th {
+	position: sticky;
+	top: 0;
+	background-color: #f8f9fa;
+	z-index: 10;
+}
+
+.version-link {
+	color: #0d6efd;
+	text-decoration: none;
+}
+
+.version-link:hover {
+	text-decoration: underline;
+}
