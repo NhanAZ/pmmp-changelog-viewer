@@ -10,12 +10,6 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Development Notice Banner -->
-    <div class="alert alert-warning text-center m-0" role="alert" id="development-notice">
-        <strong>Development Preview:</strong> This project is currently under development and has not been officially released. Features may be incomplete or subject to change.
-        <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    
     <div class="container">
         <header class="d-flex justify-content-between align-items-center my-4">
             <h1>PocketMine-MP Changelog Viewer</h1>
@@ -91,13 +85,13 @@
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="filter-heading-only">
                                 <label class="form-check-label" for="filter-heading-only">
-                                    Search in headings only
+                                    <i class="bi bi-list-ul me-1"></i> Search in headings only
                                 </label>
                             </div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" id="filter-case-sensitive">
                                 <label class="form-check-label" for="filter-case-sensitive">
-                                    Case sensitive
+                                    <i class="bi bi-type me-1"></i> Case sensitive
                                 </label>
                             </div>
                             <div class="form-check d-none">
@@ -148,19 +142,19 @@
                         <div class="version-tree">
                             <div class="version-group">
                                 <div class="version-group-header" data-group="5">Version 5.x</div>
-                                <ul id="version-group-5" class="list-group version-sublist"></ul>
+                                <ul id="version-group-5" class="list-group version-sublist d-none"></ul>
                             </div>
                             <div class="version-group">
                                 <div class="version-group-header" data-group="4">Version 4.x</div>
-                                <ul id="version-group-4" class="list-group version-sublist"></ul>
+                                <ul id="version-group-4" class="list-group version-sublist d-none"></ul>
                             </div>
                             <div class="version-group">
                                 <div class="version-group-header" data-group="3">Version 3.x</div>
-                                <ul id="version-group-3" class="list-group version-sublist"></ul>
+                                <ul id="version-group-3" class="list-group version-sublist d-none"></ul>
                             </div>
                             <div class="version-group">
                                 <div class="version-group-header" data-group="1">Version 1.x</div>
-                                <ul id="version-group-1" class="list-group version-sublist"></ul>
+                                <ul id="version-group-1" class="list-group version-sublist d-none"></ul>
                             </div>
                         </div>
                     </div>
@@ -201,6 +195,14 @@
                 <div class="col-md-6 text-md-end">
                     <p>Open Source Project - <a href="https://github.com/NhanAZ/pmmp-changelog-viewer" target="_blank"><i class="bi bi-github"></i> GitHub Repository</a></p>
                     <p class="mb-0">Contributions and feedback are welcome!</p>
+                </div>
+            </div>
+            <!-- Development notice moved to footer -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p id="development-notice" class="alert alert-warning py-1 small text-center mb-0">
+                        <i class="bi bi-info-circle me-1"></i> <strong>Development Preview:</strong> This project is currently under development and features may be incomplete.
+                    </p>
                 </div>
             </div>
         </div>
