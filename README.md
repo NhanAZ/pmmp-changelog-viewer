@@ -31,6 +31,7 @@ A small contribution from Vietnam 🇻🇳 to make PocketMine-MP changelogs more
 Powered by AI tools, including Claude by Anthropic.
 
 Contributions, suggestions, and feedback are always welcome! Feel free to:
+
 - Open an issue if you find a bug or have a feature request
 - Submit a pull request to contribute code
 - Star the repository if you find it useful
@@ -44,16 +45,16 @@ This is a pure static web application designed to be hosted on GitHub Pages. It 
 - `index.html` - Main HTML file
 - `css/` - CSS stylesheets
 - `js/` - JavaScript modules
-  - `app.js` - Application entry point
-  - `config.js` - Configuration variables
-  - `utils.js` - Utility functions
-  - `storage.js` - Local storage management
-  - `ui.js` - UI interactions
-  - `search.js` - Search functionality
-  - `versions.js` - Version management
-  - `render.js` - Markdown rendering
+    - `app.js` - Application entry point
+    - `config.js` - Configuration variables
+    - `utils.js` - Utility functions
+    - `storage.js` - Local storage management
+    - `ui.js` - UI interactions
+    - `search.js` - Search functionality
+    - `versions.js` - Version management
+    - `render.js` - Markdown rendering
 - `changelogs/` - Changelog markdown files
-  - `versions.json` - List of available versions
+    - `versions.json` - List of available versions
 
 ### Local Development
 
@@ -114,4 +115,4 @@ The application supports all modern browsers:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
