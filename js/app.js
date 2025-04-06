@@ -36,6 +36,12 @@ const App = {
         // Add browser history navigation handler
         this.setupHistoryNavigation();
         
+        // Show welcome page when starting app (if no specific version or search is displayed)
+        const params = Utils.getUrlParams();
+        if (!params.version && !params.search) {
+            this.renderWelcomePage();
+        }
+        
         console.log('Application initialized');
     },
     
@@ -178,18 +184,48 @@ const App = {
         const contentDisplay = document.getElementById('content-display');
         if (contentDisplay) {
             const welcomeHtml = `
-                <div class="welcome-page text-center py-5">
-                    <h2>Welcome to PocketMine-MP Changelog Viewer</h2>
-                    <p class="mt-4 mb-5">Select a version from the list on the left or search for specific features.</p>
-                    <div class="row">
-                        <div class="col-md-12 mb-4">
-                            <div class="card h-100">
+                <div class="welcome-page py-4">
+                    <div class="text-center mb-5">
+                        <img src="https://raw.githubusercontent.com/pmmp/PocketMine-MP/stable/.github/readme/pocketmine-rgb.gif" alt="PocketMine-MP Logo" class="mb-4" style="width: 400px; max-width: 100%; height: auto;">
+                        <h2>Welcome to PocketMine-MP Changelog Viewer</h2>
+                        <p class="lead mt-3">A modern tool to explore the evolution of PocketMine-MP</p>
+                    </div>
+                    
+                    <div class="row mb-5">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm">
                                 <div class="card-body">
-                                    <h5 class="card-title"><i class="bi bi-search"></i> Search</h5>
-                                    <p class="card-text">Search for specific changes across all versions.</p>
+                                    <h5 class="card-title"><i class="bi bi-list-ul text-primary me-2"></i>Browse Versions</h5>
+                                    <p class="card-text">Explore the changelog history by selecting a version from the list on the left. Versions are organized by major releases.</p>
+                                    <div class="text-center mt-3">
+                                        <button id="latest-version-btn" class="btn btn-outline-primary">View Latest Version</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-search text-primary me-2"></i>Popular Searches</h5>
+                                    <p class="card-text">Try these common search terms or use the search box in the sidebar to find specific changes:</p>
+                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="API">API</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="Block">Block</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="Entity">Entity</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="Player">Player</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="World">World</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="Fixed">Fixed</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="Added">Added</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="Removed">Removed</button>
+                                        <button class="btn btn-sm btn-outline-secondary quick-search-btn" data-term="Performance">Performance</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <p><small class="text-muted">Tip: Use the filter options to narrow down your search results or find specific versions.</small></p>
                     </div>
                 </div>
             `;
@@ -202,6 +238,34 @@ const App = {
             
             // Update URL
             window.history.replaceState({}, '', window.location.pathname);
+            
+            // Add event listeners to the welcome page buttons
+            setTimeout(() => {
+                // Button to view latest version
+                const latestVersionBtn = document.getElementById('latest-version-btn');
+                if (latestVersionBtn && Versions.list && Versions.list.length > 0) {
+                    latestVersionBtn.addEventListener('click', () => {
+                        Versions.loadVersion(Versions.list[0]);
+                    });
+                }
+                
+                // Quick search buttons
+                document.querySelectorAll('.quick-search-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const term = btn.dataset.term;
+                        if (term) {
+                            // Update the main search input
+                            const mainSearchInput = document.getElementById('search-input');
+                            if (mainSearchInput) {
+                                mainSearchInput.value = term;
+                            }
+                            
+                            // Perform the search
+                            Search.performSearch(term);
+                        }
+                    });
+                });
+            }, 100);
         }
     },
     
