@@ -1,10 +1,12 @@
 /**
  * Application Entry Point
  * Initializes all modules and starts the application
+ * @version 1.0.2
  */
 
 // Main App
 const App = {
+    version: '1.0.2',
     /**
      * Initialize the application
      */
@@ -19,8 +21,14 @@ const App = {
         // Hide search-in-current-version option initially
         UI.updateSearchInCurrentVersionOption(false);
         
-        // Process URL parameters
-        this.processUrlParameters();
+        try {
+            // Process URL parameters
+            this.processUrlParameters();
+        } catch (error) {
+            console.error('Error processing URL parameters:', error);
+            // Try to recover and still process search parameter
+            this.processSearchParameter();
+        }
         
         // Setup development notice
         this.setupDevelopmentNotice();
@@ -62,11 +70,26 @@ const App = {
             Versions.loadVersion(params.version, false);
         } else {
             // If no version is specified, check if we have a last viewed version
-            const lastViewedVersion = Storage.getLastVersion();
+            try {
+                const lastViewedVersion = Storage.getLastVersion();
+                // You could use lastViewedVersion here if needed
+            } catch (error) {
+                console.error('Error getting last version:', error);
+            }
             
             // No need to load the welcome page or any default version
             // Let the user choose from the version tree
         }
+        
+        // Process search parameter separately to ensure it works
+        this.processSearchParameter();
+    },
+    
+    /**
+     * Process just the search parameter - separated to improve resilience
+     */
+    processSearchParameter: function() {
+        const params = Utils.getUrlParams();
         
         // If a search term is specified in the URL, perform the search
         if (params.search) {
@@ -77,7 +100,15 @@ const App = {
             }
             
             // Perform the search without updating history
-            Search.performSearch(params.search, false);
+            // Delay slightly to ensure Search module is fully initialized
+            setTimeout(() => {
+                try {
+                    Search.performSearch(params.search, false);
+                } catch (error) {
+                    console.error('Error performing search:', error);
+                    UI.showError('Search failed. Please try again.');
+                }
+            }, 500);
         }
     },
     
