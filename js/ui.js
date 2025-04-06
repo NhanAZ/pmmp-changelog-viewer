@@ -593,17 +593,102 @@ const UI = {
                             border-radius: 2px;
                             font-weight: bold;
                         }
+                        .results-navigator {
+                            position: fixed;
+                            top: 80px;
+                            right: 30px;
+                            background: white;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                            padding: 8px 10px;
+                            display: flex;
+                            align-items: center;
+                            z-index: 1000;
+                        }
+                        .results-navigator .nav-text {
+                            margin: 0 10px;
+                            font-weight: 500;
+                        }
+                        .results-navigator button {
+                            background: transparent;
+                            border: none;
+                            color: #555;
+                            cursor: pointer;
+                            padding: 0 5px;
+                        }
+                        .results-navigator button:hover {
+                            color: #007bff;
+                        }
+                        .current-highlight {
+                            background-color: #fd7e14 !important;
+                            color: white !important;
+                        }
                     `;
                     document.head.appendChild(style);
                 }
                 
-                // Wait a bit and scroll to the first highlighted occurrence
+                // Wait a bit for DOM to be fully rendered 
                 setTimeout(() => {
-                    const firstHighlight = contentDisplay.querySelector('.highlight-search-term');
-                    if (firstHighlight) {
-                        firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const highlights = contentDisplay.querySelectorAll('.highlight-search-term');
+                    if (highlights.length > 0) {
+                        // Create navigation bar for search results
+                        const navigator = document.createElement('div');
+                        navigator.className = 'results-navigator';
+                        navigator.innerHTML = `
+                            <button class="prev-result" title="Previous result"><i class="bi bi-chevron-up"></i></button>
+                            <span class="nav-text">1/${highlights.length}</span>
+                            <button class="next-result" title="Next result"><i class="bi bi-chevron-down"></i></button>
+                            <button class="close-navigator" title="Close"><i class="bi bi-x"></i></button>
+                        `;
+                        document.body.appendChild(navigator);
+                        
+                        // Track current highlight position
+                        let currentPosition = 0;
+                        highlights[0].classList.add('current-highlight');
+                        highlights[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Navigate to previous result
+                        navigator.querySelector('.prev-result').addEventListener('click', () => {
+                            highlights[currentPosition].classList.remove('current-highlight');
+                            currentPosition = (currentPosition - 1 + highlights.length) % highlights.length;
+                            highlights[currentPosition].classList.add('current-highlight');
+                            highlights[currentPosition].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            navigator.querySelector('.nav-text').textContent = `${currentPosition + 1}/${highlights.length}`;
+                        });
+                        
+                        // Navigate to next result
+                        navigator.querySelector('.next-result').addEventListener('click', () => {
+                            highlights[currentPosition].classList.remove('current-highlight');
+                            currentPosition = (currentPosition + 1) % highlights.length;
+                            highlights[currentPosition].classList.add('current-highlight');
+                            highlights[currentPosition].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            navigator.querySelector('.nav-text').textContent = `${currentPosition + 1}/${highlights.length}`;
+                        });
+                        
+                        // Close navigator
+                        navigator.querySelector('.close-navigator').addEventListener('click', () => {
+                            navigator.remove();
+                            highlights.forEach(h => h.classList.remove('current-highlight'));
+                        });
+                        
+                        // Also add keyboard shortcuts for navigation
+                        const handleKeyNavigation = (e) => {
+                            if (e.key === 'F3' || (e.ctrlKey && e.key === 'g')) {
+                                e.preventDefault();
+                                navigator.querySelector('.next-result').click();
+                            } else if (e.shiftKey && e.key === 'F3' || (e.ctrlKey && e.shiftKey && e.key === 'g')) {
+                                e.preventDefault();
+                                navigator.querySelector('.prev-result').click();
+                            } else if (e.key === 'Escape') {
+                                navigator.querySelector('.close-navigator').click();
+                                document.removeEventListener('keydown', handleKeyNavigation);
+                            }
+                        };
+                        
+                        document.addEventListener('keydown', handleKeyNavigation);
                     }
-                }, 100);
+                }, 300);
             }
             
             // Update title
