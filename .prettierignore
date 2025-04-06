@@ -1,0 +1,22 @@
+# Node modules directory
+node_modules
+
+# Changelogs directory (as these are generated markdown content)
+changelogs/
+
+# Auto-generated files
+dist/
+build/
+
+# npm/yarn lock files
+package-lock.json
+yarn.lock
+
+# Other generated files
+coverage/
+.DS_Store
+*.min.js
+*.min.css
+
+# Configuration directories
+.github/workflows/update-changelogs.yml 

@@ -1,12 +1,10 @@
 /**
  * Application Entry Point
  * Initializes all modules and starts the application
- * @version 1.0.3
  */
 
 // Main App
 const App = {
-    version: '1.0.3',
     /**
      * Initialize the application
      */

@@ -1,0 +1,77 @@
+name: Format Code
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+          
+      - name: Install dependencies
+        run: |
+          npm init -y
+          npm install --save-dev prettier
+          
+      - name: Create Prettier config
+        run: |
+          cat > .prettierrc.json << EOL
+          {
+            "singleQuote": true,
+            "trailingComma": "all",
+            "tabWidth": 4,
+            "semi": true,
+            "printWidth": 10000,
+            "bracketSpacing": true,
+            "arrowParens": "always",
+            "endOfLine": "lf",
+            "bracketSameLine": false,
+            "htmlWhitespaceSensitivity": "css",
+            "jsxSingleQuote": false
+          }
+          EOL
+          
+      - name: Run Prettier
+        run: |
+          npx prettier --write "**/*.{js,html,css,json}"
+          
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code || echo "has_changes=true" >> $GITHUB_OUTPUT
+          
+      - name: Commit changes
+        if: steps.git-check.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action - Code Formatter"
+          git add -A
+          git commit -m "style: format code with Prettier"
+          
+      - name: Push changes
+        if: steps.git-check.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }} 
