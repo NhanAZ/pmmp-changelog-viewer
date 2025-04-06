@@ -1,0 +1,45 @@
+name: Deploy GitHub Pages
+
+on:
+  # Run when pushed to master branch
+  push:
+    branches:
+      - master
+
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# Permissions for this workflow
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  # Job for building and deploying GitHub Pages
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 

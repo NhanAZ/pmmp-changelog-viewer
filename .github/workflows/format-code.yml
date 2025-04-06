@@ -1,46 +1,49 @@
 name: Format Code
 
 on:
+  # Run when pushed to master branch or pull requests
   push:
-    branches: [ main, master ]
+    branches:
+      - master
+      - main
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - master
+      - main
+
+  # Allow manual trigger from Actions tab
+  workflow_dispatch:
+
+# Permissions for this workflow
+permissions:
+  contents: write  # Allow reading and writing to repository
 
 jobs:
   format:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-          
-      - name: Cache node modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-          
-      - name: Install dependencies
-        run: |
-          npm init -y
-          npm install --save-dev prettier
-          
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Prettier
+        run: npm install --save-dev prettier
+
       - name: Create Prettier config
         run: |
-          cat > .prettierrc.json << EOL
+          cat > .prettierrc << EOF
           {
             "singleQuote": true,
             "trailingComma": "all",
             "tabWidth": 4,
+            "useTabs": true,
             "semi": true,
             "printWidth": 10000,
             "bracketSpacing": true,
@@ -50,28 +53,32 @@ jobs:
             "htmlWhitespaceSensitivity": "css",
             "jsxSingleQuote": false
           }
-          EOL
-          
-      - name: Run Prettier
-        run: |
-          npx prettier --write "**/*.{js,html,css,json}"
-          
+          EOF
+
+      - name: Format code with Prettier
+        run: npx prettier --write "**/*.{js,jsx,ts,tsx,json,css,html,md}"
+
       - name: Check for changes
         id: git-check
         run: |
-          git diff --exit-code || echo "has_changes=true" >> $GITHUB_OUTPUT
-          
-      - name: Commit changes
-        if: steps.git-check.outputs.has_changes == 'true'
+          git diff --quiet || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Configure Git
+        if: steps.git-check.outputs.changes == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action - Code Formatter"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit changes
+        if: steps.git-check.outputs.changes == 'true' && github.event_name != 'pull_request'
+        run: |
           git add -A
-          git commit -m "style: format code with Prettier"
-          
+          git commit -m "style: Format code with Prettier"
+
       - name: Push changes
-        if: steps.git-check.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        if: steps.git-check.outputs.changes == 'true' && github.event_name != 'pull_request'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }} 
+          branch: ${{ github.ref }}
+          force: false 

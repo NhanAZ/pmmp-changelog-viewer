@@ -19,4 +19,4 @@ coverage/
 *.min.css
 
 # Configuration directories
-.github/workflows/update-changelogs.yml 
+.github/workflows/update-changelogs.yml

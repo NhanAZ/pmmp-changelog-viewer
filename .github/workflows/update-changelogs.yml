@@ -1,4 +1,4 @@
-name: PMMP Changelog Maintenance
+name: Update Changelogs
 
 on:
   # Run daily at 00:00 UTC
@@ -18,13 +18,6 @@ on:
 # Permissions for this workflow
 permissions:
   contents: write  # Allow reading and writing to repository
-  pages: write     # Allow GitHub Pages management
-  id-token: write  # Allow deployment authentication
-
-# Allow only one concurrent workflow
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   update-changelogs:
@@ -83,19 +76,10 @@ jobs:
           echo "Updated $(echo $CHANGELOG_FILES | wc -w) changelog files"
           cd ..
           
-      - name: Fix Home button URL
-        run: |
-          if grep -q '<a href="/"' index.html; then
-            echo "Fixing home button URL for GitHub Pages..."
-            sed -i 's#<a href="/"#<a href="./"#' index.html
-          else
-            echo "Home button URL is already correct."
-          fi
-          
       - name: Check for changes
         id: git-check
         run: |
-          git add changelogs/ index.html
+          git add changelogs/
           git status
           git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
           
@@ -108,8 +92,8 @@ jobs:
       - name: Commit changes
         if: steps.git-check.outputs.changes == 'true'
         run: |
-          git add changelogs/ index.html
-          git commit -m "chore: Update changelogs and fix home button URL"
+          git add changelogs/
+          git commit -m "chore: Update changelogs"
           
       - name: Push changes
         if: steps.git-check.outputs.changes == 'true'
@@ -117,28 +101,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
-          force: false
-
-  # Job for building and deploying GitHub Pages
-  deploy:
-    needs: update-changelogs
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 
+          force: false 
