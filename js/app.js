@@ -62,7 +62,7 @@ const App = {
             Versions.loadVersion(params.version, false);
         } else {
             // If no version is specified, check if we have a last viewed version
-            const lastViewedVersion = Storage.getLastViewedVersion();
+            const lastViewedVersion = Storage.getLastVersion();
             
             // No need to load the welcome page or any default version
             // Let the user choose from the version tree
