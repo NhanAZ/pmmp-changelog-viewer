@@ -12,6 +12,7 @@ A modern, responsive web application for viewing and searching PocketMine-MP cha
 - 🔄 Expandable/collapsible version groups
 - 📋 Search history
 - 🔗 Shareable links via URL parameters
+- 📊 Statistics dashboard with version analysis
 
 ## How to Use
 
@@ -19,6 +20,7 @@ A modern, responsive web application for viewing and searching PocketMine-MP cha
 2. Use the search functionality to find specific changes across all versions
 3. Filter search results for easier navigation
 4. Use the URL parameters to share specific versions or search results
+5. Click the "Statistics" button to view charts and data analysis
 
 ## Live Demo
 
@@ -35,6 +37,16 @@ Contributions, suggestions, and feedback are always welcome! Feel free to:
 - Open an issue if you find a bug or have a feature request
 - Submit a pull request to contribute code
 - Star the repository if you find it useful
+
+## Statistics Features
+
+The Statistics dashboard provides insights into PocketMine-MP development:
+
+- **Release Timeline**: Visualizes release frequency and change volume over time
+- **Version Distribution**: Shows the number of releases by major version
+- **Change Categories**: Breaks down changes by their category
+- **Change Types**: Analyzes the types of changes (added, fixed, removed, changed)
+- **Version Details**: Complete table with version information and major change categories
 
 ## Development
 
@@ -53,6 +65,7 @@ This is a pure static web application designed to be hosted on GitHub Pages. It 
     - `search.js` - Search functionality
     - `versions.js` - Version management
     - `render.js` - Markdown rendering
+    - `stats.js` - Statistics and data visualization
 - `changelogs/` - Changelog markdown files
     - `versions.json` - List of available versions
 
@@ -89,6 +102,14 @@ The repository includes a GitHub Action that automatically updates changelogs fr
 - Commits and pushes changes if any updates are found
 - Automatically deploys to GitHub Pages
 
+### Code Formatting
+
+The project uses Prettier for code formatting:
+
+- Consistent code style across the project
+- Automatically runs on GitHub via GitHub Actions
+- Configurable via `.prettierrc` file
+
 ## Deployment
 
 To deploy to GitHub Pages:
@@ -102,6 +123,7 @@ To deploy to GitHub Pages:
 - Bootstrap 5 for UI components
 - Marked.js for Markdown parsing
 - highlight.js for code syntax highlighting
+- Chart.js for statistics visualization
 - browser-sync for local development
 
 ## Browser Support
