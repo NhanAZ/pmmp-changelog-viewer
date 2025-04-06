@@ -830,22 +830,8 @@ const UI = {
         notification.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
         notification.style.minWidth = '250px';
         notification.style.animation = 'fadeIn 0.3s';
-        
-        // Add close button
-        const closeBtn = document.createElement('button');
-        closeBtn.type = 'button';
-        closeBtn.className = 'btn-close';
-        closeBtn.setAttribute('data-bs-dismiss', 'alert');
-        closeBtn.setAttribute('aria-label', 'Close');
-        closeBtn.style.position = 'absolute';
-        closeBtn.style.right = '10px';
-        closeBtn.style.top = '50%';
-        closeBtn.style.transform = 'translateY(-50%)';
-        closeBtn.onclick = () => notification.remove();
-        
-        notification.style.position = 'relative';
-        notification.style.paddingRight = '35px';
-        notification.appendChild(closeBtn);
+        notification.style.textAlign = 'center';
+        notification.style.padding = '10px 15px';
         
         // Add to container
         container.appendChild(notification);

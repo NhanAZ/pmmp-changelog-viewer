@@ -382,6 +382,15 @@ const Versions = {
         // Redisplay the version with the highlight parameter
         UI.displayVersion(this.current, content, searchTerm);
         
+        // Check if any highlights were created
+        setTimeout(() => {
+            const highlights = document.querySelectorAll('.highlight-search-term');
+            if (highlights.length === 0) {
+                // No results found, show a message
+                UI.showNotification(`No matches found for "${searchTerm}" in this version`, 'warning');
+            }
+        }, 300);
+        
         // Update URL to include the highlight parameter if not already there
         const currentParams = Utils.getUrlParams();
         if (currentParams.highlight !== searchTerm) {
