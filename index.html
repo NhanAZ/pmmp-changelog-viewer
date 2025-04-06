@@ -1,255 +1,251 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PocketMine-MP Changelog Viewer</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <div class="container">
-        <header class="d-flex justify-content-between align-items-center my-4">
-            <div class="d-flex align-items-center">
-                <div class="d-flex gap-2 me-3">
-                    <a href="./" class="btn btn-outline-primary" title="Home">
-                        <i class="bi bi-house-door"></i>
-                    </a>
-                </div>
-                <h1 class="mb-0">PocketMine-MP Changelog Viewer</h1>
-            </div>
-            <div class="d-flex gap-2 align-items-center">
-                <a href="https://github.com/NhanAZ/pmmp-changelog-viewer" class="btn btn-outline-dark" title="GitHub Repository" target="_blank">
-                    <i class="bi bi-github me-2"></i> GitHub Repository
-                </a>
-            </div>
-        </header>
-        
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-4">
-                <!-- Search Card -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Search</h5>
-                        <button id="advanced-search-toggle" class="btn btn-sm btn-outline-secondary" title="Advanced Search">
-                            <i class="bi bi-sliders"></i>
-                        </button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PocketMine-MP Changelog Viewer</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <header class="d-flex justify-content-between align-items-center my-4">
+                <div class="d-flex align-items-center">
+                    <div class="d-flex gap-2 me-3">
+                        <a href="./" class="btn btn-outline-primary" title="Home">
+                            <i class="bi bi-house-door"></i>
+                        </a>
                     </div>
-                    <div class="card-body">
-                        <!-- Simple Search -->
-                        <div id="simple-search">
-                            <div class="input-group mb-3">
-                                <input type="text" id="search-input" class="form-control" placeholder="Enter search keywords...">
-                                <button class="btn btn-primary" id="search-button">Search</button>
-                            </div>
-                            <div class="mb-3">
-                                <small class="text-muted">Tip: Use quotes for exact phrase matching (e.g. "API change")</small>
-                            </div>
+                    <h1 class="mb-0">PocketMine-MP Changelog Viewer</h1>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="https://github.com/NhanAZ/pmmp-changelog-viewer" class="btn btn-outline-dark" title="GitHub Repository" target="_blank"> <i class="bi bi-github me-2"></i> GitHub Repository </a>
+                </div>
+            </header>
+
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-4">
+                    <!-- Search Card -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Search</h5>
+                            <button id="advanced-search-toggle" class="btn btn-sm btn-outline-secondary" title="Advanced Search">
+                                <i class="bi bi-sliders"></i>
+                            </button>
                         </div>
-                        
-                        <!-- Advanced Search (Hidden by default) -->
-                        <div id="advanced-search" class="d-none">
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <input type="text" id="advanced-search-input" class="form-control" placeholder="Advanced query...">
-                                    <button class="btn btn-primary" id="advanced-search-button">Search</button>
+                        <div class="card-body">
+                            <!-- Simple Search -->
+                            <div id="simple-search">
+                                <div class="input-group mb-3">
+                                    <input type="text" id="search-input" class="form-control" placeholder="Enter search keywords..." />
+                                    <button class="btn btn-primary" id="search-button">Search</button>
                                 </div>
-                                <small class="text-muted">Use AND, OR, NOT to combine keywords</small>
+                                <div class="mb-3">
+                                    <small class="text-muted">Tip: Use quotes for exact phrase matching (e.g. "API change")</small>
+                                </div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">Build query:</label>
-                                <div id="query-builder">
-                                    <div class="query-term mb-2">
-                                        <div class="input-group input-group-sm">
-                                            <input type="text" class="form-control query-input" placeholder="Keyword...">
-                                            <select class="form-select operator-select" style="max-width: 100px;">
-                                                <option value="AND">AND</option>
-                                                <option value="OR">OR</option>
-                                                <option value="NOT">NOT</option>
-                                            </select>
-                                            <button class="btn btn-outline-secondary btn-add-term">
-                                                <i class="bi bi-plus"></i>
-                                            </button>
+
+                            <!-- Advanced Search (Hidden by default) -->
+                            <div id="advanced-search" class="d-none">
+                                <div class="mb-3">
+                                    <div class="input-group">
+                                        <input type="text" id="advanced-search-input" class="form-control" placeholder="Advanced query..." />
+                                        <button class="btn btn-primary" id="advanced-search-button">Search</button>
+                                    </div>
+                                    <small class="text-muted">Use AND, OR, NOT to combine keywords</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Build query:</label>
+                                    <div id="query-builder">
+                                        <div class="query-term mb-2">
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" class="form-control query-input" placeholder="Keyword..." />
+                                                <select class="form-select operator-select" style="max-width: 100px">
+                                                    <option value="AND">AND</option>
+                                                    <option value="OR">OR</option>
+                                                    <option value="NOT">NOT</option>
+                                                </select>
+                                                <button class="btn btn-outline-secondary btn-add-term">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <button id="build-query" class="btn btn-sm btn-outline-primary">Build Query</button>
+                                        <button id="clear-query" class="btn btn-sm btn-outline-secondary">Clear</button>
+                                    </div>
                                 </div>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <button id="build-query" class="btn btn-sm btn-outline-primary">Build Query</button>
-                                    <button id="clear-query" class="btn btn-sm btn-outline-secondary">Clear</button>
+                            </div>
+
+                            <!-- Search Filters -->
+                            <div id="search-filters" class="mb-3">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="filter-heading-only" />
+                                    <label class="form-check-label" for="filter-heading-only"> <i class="bi bi-list-ul me-1"></i> Search in headings only </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="filter-case-sensitive" />
+                                    <label class="form-check-label" for="filter-case-sensitive"> <i class="bi bi-type me-1"></i> Case sensitive </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="search-current-version" />
+                                    <label class="form-check-label" for="search-current-version"> <i class="bi bi-pin-map me-1"></i> Search in current version only </label>
+                                    <div class="form-text small">When viewing a version, search will highlight matches instead of showing results page</div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- Search Filters -->
-                        <div id="search-filters" class="mb-3">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="filter-heading-only">
-                                <label class="form-check-label" for="filter-heading-only">
-                                    <i class="bi bi-list-ul me-1"></i> Search in headings only
-                                </label>
+
+                            <!-- Version Filter -->
+                            <div class="mb-3">
+                                <label for="version-filter" class="form-label">Filter by version:</label>
+                                <select id="version-filter" class="form-select">
+                                    <option value="all">All versions</option>
+                                    <option value="5">Version 5.x</option>
+                                    <option value="4">Version 4.x</option>
+                                    <option value="3">Version 3.x</option>
+                                    <option value="1">Version 1.x</option>
+                                </select>
                             </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="filter-case-sensitive">
-                                <label class="form-check-label" for="filter-case-sensitive">
-                                    <i class="bi bi-type me-1"></i> Case sensitive
-                                </label>
+
+                            <!-- Search History -->
+                            <div id="search-history" class="mb-3 d-none">
+                                <label class="form-label">Search history:</label>
+                                <div id="history-items" class="d-flex flex-wrap gap-1"></div>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="search-current-version">
-                                <label class="form-check-label" for="search-current-version">
-                                    <i class="bi bi-pin-map me-1"></i> Search in current version only
-                                </label>
-                                <div class="form-text small">When viewing a version, search will highlight matches instead of showing results page</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Version Filter -->
-                        <div class="mb-3">
-                            <label for="version-filter" class="form-label">Filter by version:</label>
-                            <select id="version-filter" class="form-select">
-                                <option value="all">All versions</option>
-                                <option value="5">Version 5.x</option>
-                                <option value="4">Version 4.x</option>
-                                <option value="3">Version 3.x</option>
-                                <option value="1">Version 1.x</option>
-                            </select>
-                        </div>
-                        
-                        <!-- Search History -->
-                        <div id="search-history" class="mb-3 d-none">
-                            <label class="form-label">Search history:</label>
-                            <div id="history-items" class="d-flex flex-wrap gap-1"></div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Version List -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Version List</h5>
-                        <div class="btn-group">
-                            <button id="expand-all" class="btn btn-sm btn-outline-secondary" title="Expand All">
-                                <i class="bi bi-arrows-expand"></i>
-                            </button>
-                            <button id="collapse-all" class="btn btn-sm btn-outline-secondary" title="Collapse All">
-                                <i class="bi bi-arrows-collapse"></i>
-                            </button>
+
+                    <!-- Version List -->
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Version List</h5>
+                            <div class="btn-group">
+                                <button id="expand-all" class="btn btn-sm btn-outline-secondary" title="Expand All">
+                                    <i class="bi bi-arrows-expand"></i>
+                                </button>
+                                <button id="collapse-all" class="btn btn-sm btn-outline-secondary" title="Collapse All">
+                                    <i class="bi bi-arrows-collapse"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <input type="text" id="version-search" class="form-control form-control-sm" placeholder="Find version...">
-                        </div>
-                        <div class="version-tree">
-                            <div class="version-group">
-                                <div class="version-group-header" data-group="5">Version 5.x</div>
-                                <ul id="version-group-5" class="list-group version-sublist d-none"></ul>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <input type="text" id="version-search" class="form-control form-control-sm" placeholder="Find version..." />
                             </div>
-                            <div class="version-group">
-                                <div class="version-group-header" data-group="4">Version 4.x</div>
-                                <ul id="version-group-4" class="list-group version-sublist d-none"></ul>
-                            </div>
-                            <div class="version-group">
-                                <div class="version-group-header" data-group="3">Version 3.x</div>
-                                <ul id="version-group-3" class="list-group version-sublist d-none"></ul>
-                            </div>
-                            <div class="version-group">
-                                <div class="version-group-header" data-group="1">Version 1.x</div>
-                                <ul id="version-group-1" class="list-group version-sublist d-none"></ul>
+                            <div class="version-tree">
+                                <div class="version-group">
+                                    <div class="version-group-header" data-group="5">Version 5.x</div>
+                                    <ul id="version-group-5" class="list-group version-sublist d-none"></ul>
+                                </div>
+                                <div class="version-group">
+                                    <div class="version-group-header" data-group="4">Version 4.x</div>
+                                    <ul id="version-group-4" class="list-group version-sublist d-none"></ul>
+                                </div>
+                                <div class="version-group">
+                                    <div class="version-group-header" data-group="3">Version 3.x</div>
+                                    <ul id="version-group-3" class="list-group version-sublist d-none"></ul>
+                                </div>
+                                <div class="version-group">
+                                    <div class="version-group-header" data-group="1">Version 1.x</div>
+                                    <ul id="version-group-1" class="list-group version-sublist d-none"></ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Main Content -->
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 id="current-file" class="mb-0">Select a version or search</h5>
-                        <div class="d-flex gap-2">
-                            <span id="loading-indicator" class="badge bg-secondary d-none">Loading...</span>
+
+                <!-- Main Content -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 id="current-file" class="mb-0">Select a version or search</h5>
+                            <div class="d-flex gap-2">
+                                <span id="loading-indicator" class="badge bg-secondary d-none">Loading...</span>
+                            </div>
                         </div>
-                    </div>
-                    <div id="loading-container" class="d-none px-3">
-                        <div class="progress-container">
-                            <div id="loading-progress-bar" class="progress-bar indeterminate"></div>
+                        <div id="loading-container" class="d-none px-3">
+                            <div class="progress-container">
+                                <div id="loading-progress-bar" class="progress-bar indeterminate"></div>
+                            </div>
+                            <div id="loading-status">Loading data...</div>
                         </div>
-                        <div id="loading-status">Loading data...</div>
-                    </div>
-                    <div class="card-body">
-                        <div id="content-display"></div>
-                        <div id="search-results"></div>
+                        <div class="card-body">
+                            <div id="content-display"></div>
+                            <div id="search-results"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="mt-5 py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-3 mb-lg-0">
-                    <h5 class="mb-3">PocketMine-MP Changelog Viewer</h5>
-                    <p class="text-muted">A modern, responsive web application for viewing and searching PocketMine-MP changelogs.</p>
+        <!-- Footer -->
+        <footer class="mt-5 py-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 mb-3 mb-lg-0">
+                        <h5 class="mb-3">PocketMine-MP Changelog Viewer</h5>
+                        <p class="text-muted">A modern, responsive web application for viewing and searching PocketMine-MP changelogs.</p>
+                    </div>
+                    <div class="col-lg-4 mb-3 mb-lg-0">
+                        <h5 class="mb-3">Links</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="https://github.com/NhanAZ/pmmp-changelog-viewer" class="text-decoration-none"><i class="bi bi-github me-2"></i>GitHub Repository</a>
+                            </li>
+                            <li class="mb-2">
+                                <a href="https://github.com/pmmp/PocketMine-MP" class="text-decoration-none"><i class="bi bi-box me-2"></i>PocketMine-MP Project</a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/NhanAZ" class="text-decoration-none"><i class="bi bi-person me-2"></i>Developer</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4">
+                        <h5 class="mb-3">About</h5>
+                        <p class="text-muted mb-2">A small contribution from Vietnam <span>🇻🇳</span> to make PocketMine-MP changelogs more accessible.</p>
+                        <p class="text-muted mb-0">Powered by AI tools, including Claude by Anthropic.</p>
+                    </div>
                 </div>
-                <div class="col-lg-4 mb-3 mb-lg-0">
-                    <h5 class="mb-3">Links</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="https://github.com/NhanAZ/pmmp-changelog-viewer" class="text-decoration-none"><i class="bi bi-github me-2"></i>GitHub Repository</a></li>
-                        <li class="mb-2"><a href="https://github.com/pmmp/PocketMine-MP" class="text-decoration-none"><i class="bi bi-box me-2"></i>PocketMine-MP Project</a></li>
-                        <li><a href="https://github.com/NhanAZ" class="text-decoration-none"><i class="bi bi-person me-2"></i>Developer</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4">
-                    <h5 class="mb-3">About</h5>
-                    <p class="text-muted mb-2">A small contribution from Vietnam <span>🇻🇳</span> to make PocketMine-MP changelogs more accessible.</p>
-                    <p class="text-muted mb-0">Powered by AI tools, including Claude by Anthropic.</p>
-                </div>
-            </div>
-            
-            <hr class="my-4">
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2024 PocketMine-MP Changelog Viewer</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0">Contributions and feedback are welcome!</p>
-                </div>
-            </div>
-            
-            <!-- Development notice -->
-            <div class="row mt-3">
-                <div class="col-12">
-                    <p id="development-notice" class="alert alert-warning py-2 small text-center mb-0">
-                        <i class="bi bi-info-circle me-1"></i> <strong>Development Preview:</strong> This project is currently under development and features may be incomplete.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/php.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
-    
-    <!-- Module Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/render.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/versions.js"></script>
-    <script src="js/app.js"></script>
-</body>
-</html> 
+                <hr class="my-4" />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-0">&copy; 2024 PocketMine-MP Changelog Viewer</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-0">Contributions and feedback are welcome!</p>
+                    </div>
+                </div>
+
+                <!-- Development notice -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <p id="development-notice" class="alert alert-warning py-2 small text-center mb-0"><i class="bi bi-info-circle me-1"></i> <strong>Development Preview:</strong> This project is currently under development and features may be incomplete.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/php.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+
+        <!-- Module Scripts -->
+        <script src="js/config.js"></script>
+        <script src="js/utils.js"></script>
+        <script src="js/render.js"></script>
+        <script src="js/storage.js"></script>
+        <script src="js/ui.js"></script>
+        <script src="js/search.js"></script>
+        <script src="js/versions.js"></script>
+        <script src="js/app.js"></script>
+    </body>
+</html>
