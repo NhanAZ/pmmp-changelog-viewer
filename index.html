@@ -247,10 +247,24 @@
 		<script src="js/storage.js"></script>
 		<script src="js/render.js"></script>
 		<script src="js/ui.js"></script>
-		<script src="js/search.js"></script>
 		<script src="js/versions.js"></script>
 		<script src="js/compare.js"></script>
 		<script src="js/stats.js"></script>
+		<script src="js/search.js"></script>
 		<script src="js/app.js"></script>
+
+		<script>
+			// Initialize critical modules first
+			document.addEventListener('DOMContentLoaded', () => {
+				// Initialize modules
+				Storage.init();
+				Render.init();
+				// App.init() will automatically initialize other modules
+				App.init();
+				
+				// Version list will be collapsed by default (do not remove this comment)
+				// No need for code that expands the lists
+			});
+		</script>
 	</body>
 </html>

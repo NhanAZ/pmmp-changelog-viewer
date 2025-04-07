@@ -21,6 +21,11 @@ const Versions = {
 	 * @returns {Promise} Promise that resolves when initialization is complete
 	 */
 	init: async function () {
+		// Make sure all version lists are collapsed
+		document.querySelectorAll('.version-sublist').forEach((sublist) => {
+			sublist.classList.add('d-none');
+		});
+		
 		await this.loadVersions();
 	},
 
@@ -29,9 +34,27 @@ const Versions = {
 	 */
 	displayVersionTree: function () {
 		// Group versions by major version
-		this.grouped = Utils.groupVersionsByMajor(this.list);
+		const grouped = {};
+		
+		// Process each version to group by major version
+		this.list.forEach(version => {
+			const parsed = Utils.parseVersion(version);
+			const majorVersion = parsed.major.toString();
+			
+			if (!grouped[majorVersion]) {
+				grouped[majorVersion] = [];
+			}
+			
+			grouped[majorVersion].push({
+				file: version,
+				parsed: parsed
+			});
+		});
+		
+		// Store grouped versions
+		this.grouped = grouped;
 
-		// Get version tree container - not version-list but version-tree
+		// Get version tree container
 		const versionTree = document.querySelector('.version-tree');
 		if (!versionTree) {
 			console.error('Version tree container not found');
@@ -53,6 +76,9 @@ const Versions = {
 
 				// Clear existing content in the sublist
 				subList.innerHTML = '';
+				
+				// Don't automatically display sublists, keep them collapsed (d-none)
+				// subList.classList.remove('d-none');
 
 				// Add versions to sublist
 				versions.forEach((version) => {
@@ -60,17 +86,17 @@ const Versions = {
 					listItem.className = 'list-group-item version-item';
 					listItem.dataset.version = version.file;
 
-					// Ensure displayName is accessible - handle the parsed property correctly
-					const displayName = version.parsed ? version.parsed.displayName : version.file.replace('.md', '');
+					// Ensure displayName is accessible
+					const displayName = version.parsed.displayName;
 					listItem.textContent = displayName;
 
-					// Add beta/alpha badge if needed - handle the parsed property correctly
-					if (version.parsed && version.parsed.isAlpha) {
+					// Add beta/alpha badge if needed
+					if (version.parsed.isAlpha) {
 						const badge = document.createElement('span');
 						badge.className = 'badge bg-warning text-dark ms-2';
 						badge.textContent = 'Alpha';
 						listItem.appendChild(badge);
-					} else if (version.parsed && version.parsed.isBeta) {
+					} else if (version.parsed.isBeta) {
 						const badge = document.createElement('span');
 						badge.className = 'badge bg-info text-dark ms-2';
 						badge.textContent = 'Beta';
@@ -301,29 +327,22 @@ const Versions = {
 	},
 
 	/**
-	 * Toggle a version group expansion
+	 * Toggle version group visibility
 	 * @param {string} groupId - Group ID to toggle
 	 */
 	toggleVersionGroup: function (groupId) {
-		const header = document.querySelector(`.version-group-header[data-group="${groupId}"]`);
-		const list = document.getElementById(`version-group-${groupId}`);
-
-		if (!header || !list) return;
-
-		header.classList.toggle('collapsed');
-		list.classList.toggle('collapsed');
+		const sublist = document.getElementById(`version-group-${groupId}`);
+		if (sublist) {
+			sublist.classList.toggle('d-none');
+		}
 	},
 
 	/**
 	 * Expand all version groups
 	 */
 	expandAllGroups: function () {
-		document.querySelectorAll('.version-group-header').forEach((header) => {
-			header.classList.remove('collapsed');
-		});
-
-		document.querySelectorAll('.version-sublist').forEach((list) => {
-			list.classList.remove('collapsed');
+		document.querySelectorAll('.version-sublist').forEach((sublist) => {
+			sublist.classList.remove('d-none');
 		});
 	},
 
@@ -331,12 +350,8 @@ const Versions = {
 	 * Collapse all version groups
 	 */
 	collapseAllGroups: function () {
-		document.querySelectorAll('.version-group-header').forEach((header) => {
-			header.classList.add('collapsed');
-		});
-
-		document.querySelectorAll('.version-sublist').forEach((list) => {
-			list.classList.add('collapsed');
+		document.querySelectorAll('.version-sublist').forEach((sublist) => {
+			sublist.classList.add('d-none');
 		});
 	},
 
