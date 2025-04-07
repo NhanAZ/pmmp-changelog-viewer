@@ -15,7 +15,6 @@ const App = {
 		UI.init();
 		Search.init();
 		Versions.init();
-		Stats.init();
 
 		// Hide search-in-current-version option initially
 		UI.updateSearchInCurrentVersionOption(false);
