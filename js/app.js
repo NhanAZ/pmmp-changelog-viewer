@@ -228,8 +228,8 @@ const App = {
                         </div>
                     </div>
                     
-                    <div class="mt-4 text-center">
-                        <p><small class="text-muted">Tip: Use the filter options to narrow down your search results or find specific versions.</small></p>
+                    <div class="tip-container p-3 rounded">
+                        <p class="mb-0"><i class="bi bi-info-circle me-2"></i><span class="fw-semibold">Tip:</span> Use the filter options to narrow down your search results or find specific versions.</p>
                     </div>
                 </div>
             `;

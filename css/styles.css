@@ -2,6 +2,7 @@
 :root {
 	/* Light theme colors */
 	--primary-color: #0d6efd;
+	--primary-color-rgb: 13, 110, 253;
 	--primary-hover: #0b5ed7;
 	--primary-light: #cfe2ff;
 	--secondary-color: #6c757d;
@@ -586,3 +587,25 @@ footer .list-unstyled li {
 .version-link:hover {
 	text-decoration: underline;
 }
+
+/* Tip container custom styling */
+.tip-container {
+	border-left: 4px solid var(--primary-color);
+	margin-top: 10px !important;
+	margin-bottom: 10px !important;
+	background-color: rgba(var(--primary-color-rgb), 0.15) !important;
+	color: #333;
+	font-size: 0.95rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tip-container i {
+	color: var(--primary-color);
+	font-size: 1.05rem;
+}
+
+.tip-container .fw-semibold {
+	color: var(--primary-color);
+}
+
+/* Hide the welcome page when printing */
