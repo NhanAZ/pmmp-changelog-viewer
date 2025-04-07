@@ -111,5 +111,5 @@ const Render = {
 				this.highlightTextNodes(child, searchTerm, caseSensitive);
 			});
 		}
-	}
+	},
 };
