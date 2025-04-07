@@ -18,8 +18,6 @@
 	--mark-bg: #fff3cd;
 	--mark-color: #664d03;
 	--shadow-color: rgba(0, 0, 0, 0.1);
-	--diff-added: #e6ffed;
-	--diff-removed: #ffebe9;
 
 	/* Other variables */
 	--transition-time: 0.3s;
@@ -255,61 +253,6 @@ body {
 	color: var(--text-color);
 	padding: 0.1em 0;
 	border-radius: 2px;
-}
-
-/* Diff styling */
-.diff-container {
-	font-family: monospace;
-	margin-top: 20px;
-}
-
-.diff-section-title {
-	background-color: #f0f0f0;
-	padding: 8px;
-	margin-top: 20px;
-	margin-bottom: 10px;
-	border-radius: 4px;
-}
-
-.diff-section {
-	margin-bottom: 20px;
-	padding: 10px;
-	border-radius: 4px;
-	background-color: #f8f9fa;
-}
-
-.diff-line {
-	padding: 2px 0;
-	white-space: pre-wrap;
-}
-
-.diff-added {
-	background-color: #e6ffed;
-	color: #22863a;
-	border-left: 3px solid #34d058;
-	padding-left: 5px;
-}
-
-.diff-removed {
-	background-color: #ffeef0;
-	color: #cb2431;
-	border-left: 3px solid #d73a49;
-	padding-left: 5px;
-}
-
-.diff-unchanged {
-	color: #6c757d;
-	font-style: italic;
-}
-
-/* Ensure pre tags in diffs display properly */
-.diff-line pre {
-	margin: 0;
-	padding: 0;
-	border: none;
-	background: transparent;
-	overflow-x: auto;
-	white-space: pre-wrap;
 }
 
 /* Misc utilities */
