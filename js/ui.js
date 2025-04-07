@@ -24,7 +24,7 @@ const UI = {
 
 		// Handle scroll events for back-to-top button
 		window.addEventListener('scroll', () => {
-			this.toggleBackToTopButton();
+			this.toggleScrollButtons();
 		});
 
 		// Handle scroll events for navigation buttons
