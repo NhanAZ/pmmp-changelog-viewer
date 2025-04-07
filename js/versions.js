@@ -25,7 +25,7 @@ const Versions = {
 		document.querySelectorAll('.version-sublist').forEach((sublist) => {
 			sublist.classList.add('d-none');
 		});
-		
+
 		await this.loadVersions();
 	},
 
@@ -35,22 +35,22 @@ const Versions = {
 	displayVersionTree: function () {
 		// Group versions by major version
 		const grouped = {};
-		
+
 		// Process each version to group by major version
-		this.list.forEach(version => {
+		this.list.forEach((version) => {
 			const parsed = Utils.parseVersion(version);
 			const majorVersion = parsed.major.toString();
-			
+
 			if (!grouped[majorVersion]) {
 				grouped[majorVersion] = [];
 			}
-			
+
 			grouped[majorVersion].push({
 				file: version,
-				parsed: parsed
+				parsed: parsed,
 			});
 		});
-		
+
 		// Store grouped versions
 		this.grouped = grouped;
 
@@ -76,7 +76,7 @@ const Versions = {
 
 				// Clear existing content in the sublist
 				subList.innerHTML = '';
-				
+
 				// Don't automatically display sublists, keep them collapsed (d-none)
 				// subList.classList.remove('d-none');
 
