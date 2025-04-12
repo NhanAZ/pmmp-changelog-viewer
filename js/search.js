@@ -17,7 +17,29 @@ const Search = {
 	 * Initialize search module
 	 */
 	init: function () {
-		this.attachEventListeners();
+		console.log('Initializing search module...');
+		
+		// Wait for DOM to be fully loaded
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', () => {
+				this.attachEventListeners();
+				console.log('Search event listeners attached after DOMContentLoaded');
+			});
+		} else {
+			this.attachEventListeners();
+			console.log('Search event listeners attached immediately');
+		}
+		
+		// Add global function to toggle advanced search (can be called from console)
+		window.toggleAdvancedSearch = function() {
+			const simpleSearch = document.getElementById('simple-search');
+			const advancedSearch = document.getElementById('advanced-search');
+			
+			if (simpleSearch) simpleSearch.classList.toggle('d-none');
+			if (advancedSearch) advancedSearch.classList.toggle('d-none');
+			
+			console.log('Advanced search toggled manually');
+		};
 	},
 
 	/**
@@ -61,16 +83,27 @@ const Search = {
 		});
 
 		// Advanced search toggle
-		document.getElementById('advanced-search-toggle')?.addEventListener('click', () => {
+		document.getElementById('advanced-search-toggle')?.addEventListener('click', function() {
+			console.log('Advanced search toggle clicked');
+			
 			const simpleSearch = document.getElementById('simple-search');
 			const advancedSearch = document.getElementById('advanced-search');
 			const searchFilters = document.getElementById('search-filters');
 
-			if (simpleSearch && advancedSearch) {
+			if (simpleSearch) {
 				simpleSearch.classList.toggle('d-none');
-				advancedSearch.classList.toggle('d-none');
-				searchFilters?.classList.toggle('d-none');
+				console.log('Toggled simple search:', simpleSearch.classList.contains('d-none') ? 'hidden' : 'visible');
 			}
+			
+			if (advancedSearch) {
+				advancedSearch.classList.toggle('d-none');
+				console.log('Toggled advanced search:', advancedSearch.classList.contains('d-none') ? 'hidden' : 'visible');
+			}
+			
+			// Remove this toggle since search filters should always be visible
+			// if (searchFilters) {
+			//     searchFilters.classList.toggle('d-none');
+			// }
 		});
 
 		// Query builder

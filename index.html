@@ -32,7 +32,7 @@
 					<div class="card mb-4">
 						<div class="card-header d-flex justify-content-between align-items-center">
 							<h5 class="mb-0">Search</h5>
-							<button id="advanced-search-toggle" class="btn btn-sm btn-outline-secondary" title="Advanced Search">
+							<button id="advanced-search-toggle" class="btn btn-sm btn-outline-secondary" type="button" title="Advanced Search" onclick="toggleAdvancedSearch()">
 								<i class="bi bi-sliders"></i>
 							</button>
 						</div>
@@ -248,6 +248,27 @@
 		<script src="js/app.js"></script>
 
 		<script>
+			// Create toggle function immediately
+			window.toggleAdvancedSearch = function() {
+				console.log("Toggle function called directly");
+				const simpleSearch = document.getElementById('simple-search');
+				const advancedSearch = document.getElementById('advanced-search');
+				
+				if (simpleSearch) {
+					simpleSearch.classList.toggle('d-none');
+					console.log('Simple search is now:', simpleSearch.classList.contains('d-none') ? 'hidden' : 'visible');
+				} else {
+					console.error('Simple search element not found');
+				}
+				
+				if (advancedSearch) {
+					advancedSearch.classList.toggle('d-none');
+					console.log('Advanced search is now:', advancedSearch.classList.contains('d-none') ? 'hidden' : 'visible');
+				} else {
+					console.error('Advanced search element not found');
+				}
+			};
+			
 			// Initialize critical modules first
 			document.addEventListener('DOMContentLoaded', () => {
 				// Initialize modules

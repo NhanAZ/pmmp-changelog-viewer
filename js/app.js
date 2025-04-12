@@ -11,6 +11,13 @@ const App = {
 	init: function () {
 		console.log('Initializing application...');
 
+		// Verify Bootstrap is loaded
+		if (typeof bootstrap === 'undefined') {
+			console.error('Bootstrap is not loaded! This will affect UI components.');
+		} else {
+			console.log('Bootstrap is properly loaded.');
+		}
+
 		// Initialize modules
 		UI.init();
 		Search.init();
