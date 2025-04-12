@@ -70,8 +70,6 @@ npm install
 npm start
 ```
 
-**Security Note**: The current version of browser-sync includes a dependency (eazy-logger) with a prototype pollution vulnerability (CVE-2024-57075). This is a development dependency only and doesn't affect the deployed application. Consider using an alternative local server for development if security is a concern.
-
 ### Adding New Changelogs
 
 1. Add your markdown changelog file to the `changelogs/` directory
