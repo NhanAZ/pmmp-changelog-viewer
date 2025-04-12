@@ -2,7 +2,9 @@
 
 A modern, responsive web application for viewing and searching PocketMine-MP changelogs. Built for GitHub Pages.
 
-> **DEVELOPMENT NOTICE:** This project is currently under development and has not been officially released. Features may be incomplete or subject to change.
+## 🚧 DEVELOPMENT NOTICE
+
+**DEVELOPMENT NOTICE:** This project is currently under development and has not been officially released. Features may be incomplete or subject to change.
 
 ## Features
 
