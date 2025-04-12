@@ -249,18 +249,18 @@
 
 		<script>
 			// Create toggle function immediately
-			window.toggleAdvancedSearch = function() {
-				console.log("Toggle function called directly");
+			window.toggleAdvancedSearch = function () {
+				console.log('Toggle function called directly');
 				const simpleSearch = document.getElementById('simple-search');
 				const advancedSearch = document.getElementById('advanced-search');
-				
+
 				if (simpleSearch) {
 					simpleSearch.classList.toggle('d-none');
 					console.log('Simple search is now:', simpleSearch.classList.contains('d-none') ? 'hidden' : 'visible');
 				} else {
 					console.error('Simple search element not found');
 				}
-				
+
 				if (advancedSearch) {
 					advancedSearch.classList.toggle('d-none');
 					console.log('Advanced search is now:', advancedSearch.classList.contains('d-none') ? 'hidden' : 'visible');
@@ -268,7 +268,7 @@
 					console.error('Advanced search element not found');
 				}
 			};
-			
+
 			// Initialize critical modules first
 			document.addEventListener('DOMContentLoaded', () => {
 				// Initialize modules
